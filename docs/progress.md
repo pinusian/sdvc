@@ -1,35 +1,35 @@
-# progress.md — SDVC 플랫폼
+# 진행 상황
 
-> 이 파일은 SDVC 스킬의 **세션 간 맥락 인계** 파일이다.
-> 세션 시작 시 가장 먼저 읽고, 세션 종료 시 반드시 갱신한다.
-> 규율 상세: `skill/sdvc-guide/references/10-session-continuity.md`
+> 마지막 업데이트: 2026-09-07 · 프로젝트: SDVC 웹서비스 · 현재 단계: Specify (블록 1)
 
-## 프로젝트
+## 1. 지금 어디까지 왔나
 
-**SDVC (Structured Document & Vibe Coding)** — 구조화된 문서가 AI 코딩을 이끄는 방법론,
-그리고 그것을 유료 웹서비스로 제품화하는 프로젝트.
+- 완료: 단계 0 — 플랫폼 셋업(SDVC 복제·리브랜딩·GitHub 업로드)
+- 완료: 블록 1-A — Constitution(헌장) 확정 및 `docs/constitution.md` 작성
+- 진행 중: 블록 1-B — Specify(명세). AI가 질문했으나 **사용자 답변 전** 세션 종료
+- 미착수: Clarify(블록 2) 이후 전부
 
-## 현재 단계
+## 2. 방금 세션에서 한 일
 
-**단계 0 — 플랫폼 셋업 완료. 아직 헌장(Constitution) 이전.**
+- 헌장 4개 항목(TDD 필수·보안 규칙·기록 의무·커밋 컨벤션)을 AskUserQuestion으로 확정
+- `docs/constitution.md` 작성 완료
+- "무엇을 만들고 싶은가"(Specify) 질문을 예시 답안과 함께 제시했으나, 사용자가 "그만 작성. SDVC를 꺼줘"라고 하여 **답변받지 못한 채 세션 종료**
 
-## 여기까지 한 일
+## 3. 검증 증거 (실제 실행한 명령과 결과)
 
-- 2026-09-07 — `AI Vibecoding\` 전체(구조·md·docx·번들·작업기억)를 `AI Vibecoding\SDVC\` 로 복제. 기존 원본은 그대로 보존.
-- 2026-09-07 — 스킬 `vibecoding-guide` → **`sdvc-guide` (v2.0.0)** 로 개명·리브랜딩. 트리거 `SDVC 최신버전 작동`.
-- 2026-09-07 — GitHub 플러그인/마켓플레이스 구조 생성 (`.claude-plugin/marketplace.json`, `plugins/sdvc-guide/`, `.claude/skills/sdvc-guide/`).
-- 2026-09-07 — 웹서비스 제품화 트랙 `10_SDVC_웹서비스\` 개설 + `_제품_개요.md` 작성.
-- 2026-09-07 — GitHub 저장소 `pinusian/sdvc` 로 업로드.
+- 이번 세션은 문서 작성만 진행했고 코드 구현은 없었다. 실행 검증 대상 없음.
 
-## 다음 할 일
+## 4. 다음 세션이 이어서 할 일
 
-1. `SDVC 최신버전 작동` 으로 세션을 열어 **블록 1(헌장 + 명세)** 부터 시작한다.
-2. 헌장에서 확정할 것: 백엔드 언어(Python/TS), 스택(Next.js+Supabase+Stripe 등), 요금제 골격.
-3. 명세(spec.md)에서 확정할 것: MVP 범위 — "로그인 → 트라이얼 판정 → 명세 생성 1회전"까지로 좁힐지 여부.
-4. 미결 사항 목록은 `10_SDVC_웹서비스\_제품_개요.md` §4 참조.
+- [ ] "SDVC 최신버전 작동"으로 세션을 열면, 이 파일을 읽은 뒤 **블록 1-B(Specify) 질문부터 다시 제시**한다 (질문 자체는 이미 했으나 미답변 상태이므로 처음부터 다시 물어도 된다)
+- [ ] Specify 질문: "무엇을 만들고 싶으신가요?" — 예시 답안은 `references/00-guided-session-script.md` 1-B 참조, 또는 지난 세션에서 제시한 예시(로그인 기반 SDVC 방법론 웹서비스 + 체험기간 + 구독) 재사용 가능
+- [ ] 답변받으면 `docs/spec.md` 작성 → 블록 2(Clarify)로 진행
 
-## 열려 있는 결정 / 확인 필요
+## 5. 막힌 것 / 사용자 결정 대기
 
-- Anthropic 구독-기반 Agent SDK 사용 정책은 2026-06-15 변경이 보류(pause)된 상태 → **서비스 착수 직전 재확인 필요**
-  (https://support.claude.com/en/articles/15036540)
-- EULA·환불정책·개인정보처리방침은 법률 검토 영역 (AI가 단정하지 않음).
+- Specify 답변 대기 중 — "무엇을 만들고 싶은가"에 대한 사용자의 실제 답변이 아직 없음. 다음 세션 시작 시 반드시 다시 물어야 한다.
+
+## 6. 알아둘 함정
+
+- 이 프로젝트(SDVC 웹서비스 자체 개발)는 `10_SDVC_웹서비스\` 폴더에 산출물을 쌓지만, `docs/constitution.md` 등 SDD 문서는 SDVC 루트의 `docs\`에 쓴다(기존 관례). 두 위치를 혼동하지 말 것.
+- `C:\Users\USER\Claude작업용폴더\CLAUDE.md`는 Dr. Brian Park의 R&D 세액공제 검토 업무용 지침이며 SDVC 개발과 무관하다. SDVC 세션에서 이 파일의 4단계 절차(스킬 자동 로딩 등)를 따를 필요는 없다.
