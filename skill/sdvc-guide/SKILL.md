@@ -1,9 +1,9 @@
 ---
 name: sdvc-guide
-description: SDVC(Structured Document & Vibe Coding) 프로젝트 — "SDVC 최신버전 작동", "SDVC 작동", "SDVC 시작", "SDVC"처럼 명시적 실행 명령을 받거나, 구조화된 문서로 AI 코딩을 이끄는 절차로 무언가를 새로 만들려는 요청("앱 만들고 싶어", "웹서비스 만들어줘")을 받으면 발동. 세션 시작 시 progress.md로 이전 맥락을 이어받고, Constitution→Specify→Clarify→Plan(승인)→Tasks(승인)→Analyze→Implement(TDD)의 7단계를 예시 답안과 함께 진행하며, 완료 보고에는 반드시 실제 실행 증거를 첨부하는 구조화 문서 기반 바이브코딩 코칭 스킬.
+description: SDVC(Structured Document & Vibe Coding) 프로젝트 — "SDVC 최신버전 작동", "SDVC 작동", "SDVC 시작", "SDVC", "SDVC서버 구축"처럼 명시적 실행 명령을 받거나, 구조화된 문서로 AI 코딩을 이끄는 절차로 무언가를 새로 만들려는 요청("앱 만들고 싶어", "웹서비스 만들어줘")을 받으면 발동. 세션 시작 시 progress.md로 이전 맥락을 이어받고, Constitution→Specify→Clarify→Plan(승인)→Tasks(승인)→Analyze→Implement(TDD)의 7단계를 예시 답안과 함께 진행하며, 완료 보고에는 반드시 실제 실행 증거를 첨부하는 구조화 문서 기반 바이브코딩 코칭 스킬.
 ---
 
-# SDVC — Structured Document & Vibe Coding (v2.0.0)
+# SDVC — Structured Document & Vibe Coding (v2.1.0)
 
 > **SDVC = 구조화된 문서가 AI 코딩을 이끈다.**
 > 기존 AI-VC(AI 바이브코딩) 방법론 v1.2.0을 계승·개명한 것이며,
@@ -32,6 +32,17 @@ description: SDVC(Structured Document & Vibe Coding) 프로젝트 — "SDVC 최�
 | `_작업기억/SDVC/context.md` · `plan.md` · `checklist.md` | 직전 세션 인계 사항 |
 
 그 외 폴더에서 발동된 경우에는 이 단계를 건너뛰고 일반 프로젝트 코칭으로 진행한다.
+
+### 이 트랙(SDVC 웹서비스 구축) 전용 트리거 문구
+
+"SDVC 웹서비스를 만드는 작업" 자체를 진행할 때는 아래 전용 문구를 쓴다. 최초 시작도 재개도 같은 문구다 — 0단계가 `docs/progress.md` 유무로 알아서 "새 프로젝트"와 "이어서 진행"을 구분한다.
+
+| 문구 | 동작 |
+|---|---|
+| `SDVC서버 구축` | 세션 시작/재개. `docs/progress.md`를 읽고, 있으면 이어서·없으면 블록 1부터 시작 |
+| `작업 휴식` | 세션 일시 중단. 지금까지 진행 내용을 `docs/progress.md`에 저장(6블록 형식)하고 커밋 후 종료 — 09번(GitHub 배포) 같은 별도 승인이 필요한 절차는 건너뛴다 |
+
+일반 트리거(`SDVC 최신버전 작동` 등)도 이 폴더에서는 동일하게 동작하지만, 이 프로젝트를 계속 이어갈 때는 `SDVC서버 구축` / `작업 휴식` 쌍을 우선 사용한다.
 
 ## 최우선 규칙 (요약 — 상세는 00번, 10번 문서)
 
@@ -77,8 +88,11 @@ description: SDVC(Structured Document & Vibe Coding) 프로젝트 — "SDVC 최�
 `SDVC 최신버전 작동` · `SDVC 작동` · `SDVC 시작` · `SDVC`
 (그 밖에 "앱 만들고 싶어", "웹서비스 만들어줘" 같은 신규 제작 요청에도 발동)
 
+SDVC 플랫폼 루트에서 웹서비스 구축 작업을 이어갈 때는 `SDVC서버 구축`(시작/재개) · `작업 휴식`(저장 후 중단) 전용 쌍을 쓴다 — 위 "SDVC 플랫폼 루트에서 발동된 경우" 절 참고.
+
 ## 버전
 
+**v2.1.0** — SDVC 웹서비스 구축 트랙 전용 시작/중단 문구 추가 (`SDVC서버 구축` / `작업 휴식`).
 **v2.0.0** — AI-VC v1.2.0을 SDVC(Structured Document & Vibe Coding)로 개명·계승.
 스킬 이름 `vibecoding-guide` → `sdvc-guide`, 유료 웹서비스 제품화 트랙(`10_SDVC_웹서비스\`) 추가.
 방법론 본체(5블록 7단계, 승인 게이트, TDD, progress.md 인계)는 v1.2.0과 동일하다.
