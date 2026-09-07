@@ -1,0 +1,41 @@
+# --- secrets (절대 커밋 금지) ---
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets.json
+
+# --- node / web app (10_SDVC_웹서비스 개발 시) ---
+node_modules/
+.next/
+out/
+dist/
+build/
+.turbo/
+coverage/
+*.tsbuildinfo
+
+# --- python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# --- OS / editor ---
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# --- office lock files ---
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# --- claude local ---
+.claude/settings.local.json

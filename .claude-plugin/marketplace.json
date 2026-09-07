@@ -1,0 +1,17 @@
+{
+  "name": "sdvc-marketplace",
+  "owner": {
+    "name": "pinusian"
+  },
+  "metadata": {
+    "description": "SDVC(Structured Document & Vibe Coding) — 구조화된 문서가 AI 코딩을 이끄는 방법론 스킬 마켓플레이스",
+    "version": "2.0.0"
+  },
+  "plugins": [
+    {
+      "name": "sdvc-guide",
+      "source": "./plugins/sdvc-guide",
+      "description": "SDVC 방법론 코칭 스킬 — 헌장→명세→명확화→계획(승인)→작업분해(승인)→분석→TDD 구현의 7단계를 구조화된 문서로 이끈다"
+    }
+  ]
+}

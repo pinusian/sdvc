@@ -1,0 +1,17 @@
+{
+  "name": "vibecoding-marketplace",
+  "owner": {
+    "name": "pinusian"
+  },
+  "metadata": {
+    "description": "바이브코딩 교육용 스킬 마켓플레이스",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "vibecoding-guide",
+      "source": "./plugins/vibecoding-guide",
+      "description": "프로그래밍 초보자를 위한 바이브코딩 가이드 — 명세→계획→작업분해→TDD 구현 절차를 코치하는 스킬"
+    }
+  ]
+}

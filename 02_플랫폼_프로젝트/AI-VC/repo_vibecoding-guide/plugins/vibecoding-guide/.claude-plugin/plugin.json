@@ -1,0 +1,9 @@
+{
+  "name": "vibecoding-guide",
+  "version": "1.2.0",
+  "description": "프로그래밍 초보자를 위한 바이브코딩 가이드 — 명세→계획→작업분해→TDD 구현 절차를 코치하는 스킬. 세션 간 맥락 인계(progress.md)와 증거 기반 완료 보고 포함 (Spec Kit 연동 + 경량 내장 워크플로 하이브리드)",
+  "author": {
+    "name": "pinusian"
+  },
+  "keywords": ["vibecoding", "spec-kit", "tdd", "beginner", "korean", "session-continuity"]
+}
