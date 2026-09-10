@@ -1,6 +1,6 @@
 # 진행 상황
 
-> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: **슬라이스 2 진행 중 — [P3-1]·[P3-2]·[P3-3] 완료, 다음은 [P3-4] 대화 상태 DB 저장**
+> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: **슬라이스 2 — [P3-1]~[P3-6] 코드 완료, [P3-7] 검증만 남음 (사용자가 Supabase에 0003 마이그레이션 실행해야 진행 가능)**
 
 ## 1. 지금 어디까지 왔나
 
@@ -20,7 +20,10 @@
 - 완료: [P3-1] ANTHROPIC_API_KEY 로컬·Vercel 설정 확인 (실제 API 호출로 키 유효성 검증)
 - 완료: [P3-2] 대화 API 뼈대 `/api/chat` (RED→GREEN→REFACTOR 3커밋)
 - 완료: [P3-3] SDVC 진행대본을 서버 프롬프트 모듈로 이식 — **슬라이스 2의 핵심 작업** (RED→GREEN + 실제 API 검증 중 발견한 결함 1건 수정)
-- **다음: [P3-4] 대화 상태 DB 저장(conversations·messages 표)**
+- 완료: [P3-4] 대화 상태 DB 저장 — `conversations`·`messages` 표, 저장소 모듈, `/api/chat` 계약을 대화 ID 기반으로 전환, `/api/conversations` 2종 추가
+- 완료: [P3-5] 채팅 화면(`/conversations/[id]`) — 스트리밍 표시·"생각하는 중"·오류 표시, 대시보드 "새 프로젝트" 연결
+- 완료: [P3-6] 승인 게이트 UI — gate 이벤트 → 승인/수정 버튼, 승인 시에만 다음 블록
+- **다음: [P3-7] 슬라이스 2 검증 — 먼저 사용자가 Supabase SQL Editor에서 `0003_conversations.sql` 실행해야 함**
 
 ## 2. 방금 세션에서 한 일 (2026-09-10, 이 세션)
 
@@ -39,6 +42,8 @@
 
 - [P3-1~P3-3] `npm run test` → **Test Files 11 passed / Tests 61 passed**, `npm run lint` 무오류, `npm run build` ✓ Compiled successfully (라우트 8개, `/api/chat` 포함)
 - [P3-3] **실제 Claude API로 이식된 대본 검증** (`claude-sonnet-5`, block=plan, max_tokens 4000): 응답에 화면 구성·폴더 구조·**헌장 점검 표**·승인 선택지 3종("예, 이대로 진행(권장)"/"일부 수정"/"다시 설명")이 대본 지시대로 나왔고, 마지막 줄에 `<<SDVC_GATE:plan>>` 마커가 정확히 출력됨. block=constitution_specify로는 헌장 4종 추천 + 쉬운 말 비유가 나오는 것 확인.
+- [P3-4~P3-6] `npm run test` → **Test Files 14 passed / Tests 92 passed**, `npm run lint` 무경고, `npm run build` ✓ (라우트 11개: `/api/chat`, `/api/conversations`, `/api/conversations/[id]`, `/conversations/[id]` 추가)
+- [P3-5] 자체 결함 1건: jsdom에 `scrollIntoView`가 없어 스트리밍이 첫 청크에서 중단됐다 → `?.()`로 있을 때만 호출하도록 수정(테스트가 잡아냄).
 - [P3-3] **검증 중 결함 1건 발견·수정**: 모델이 계획 수립 같은 요청에서 **스스로 확장 사고(thinking)를 켜는데**, 그동안 `text_delta`가 안 나와 화면이 멈춘 것처럼 보였다(max_tokens가 작으면 사고만 하다 끝나 아예 빈 응답). 사고 내용은 감추되 `{"type":"thinking"}` 신호를 한 번 보내도록 RED→GREEN으로 수정.
 
 - `gh repo create sdvc-app --private` 및 `git push -u origin main` 성공 확인 (`gh repo view` → isEmpty:false)
@@ -102,14 +107,19 @@
 - [x] **[P3-3] 완료** — `src/lib/sdvc/blocks.ts`(5블록·7단계·게이트 위치·`advanceBlock` fail-closed) + `src/lib/sdvc/prompt.ts`(`buildSystemPrompt`). 라우트가 `block`·`projectName`을 받아 해당 블록 프롬프트를 system으로 전달, 모르는 block은 400.
   대본 준수를 테스트로 고정: 블록 순서, 7단계 배치, 게이트는 Plan·Tasks에만, 관통 규칙 4가지(예시 답안/쉬운 말/증거 기반/승인 게이트) 전 블록 포함, 헌장 보안 규칙 포함, 서버 비밀값 미포함.
   커밋 `aa93e6c`→`d16a07d`, 결함 수정 `a6a31ca`→`4db52f9`.
-- [ ] **[P3-4]** 대화 상태 DB 저장 (세션 끊겨도 이어서 진행)
-- [ ] **[P3-5]** 채팅 화면 (스트리밍 표시)
-- [ ] **[P3-6]** 승인 게이트 UI (계획·작업분해 단계 승인/수정 버튼)
-- [ ] **[P3-7]** 슬라이스 2 검증 — "홈페이지 만들고 싶어" 입력 → 헌장~계획까지 실제 대화 진행 확인
+- [x] **[P3-4] 완료** — `supabase/migrations/0003_conversations.sql`(conversations·messages, 둘 다 RLS 켜고 정책 없음 = 서버 전용) + `src/lib/conversations/store.ts`(모든 접근에 owner_id 조건 직접 부여).
+  `/api/chat` 계약 변경: 클라이언트는 `conversationId`와 이번 메시지만 보내고, 기록과 진행 단계는 서버가 DB에서 읽는다(클라이언트가 단계를 건너뛸 수 없음). 응답 스트림에서 `<<SDVC_GATE:…>>` 마커를 걷어내 `gate` 이벤트로 바꾸고, 마커 뺀 답변을 저장.
+  `/api/conversations`(POST 생성) · `/api/conversations/[id]`(GET 불러오기) 추가. 커밋 `e2968fc`→`2a7662b`→`ea69cb7`.
+- [x] **[P3-5] 완료** — `src/components/chat/ChatView.tsx` + `/conversations/[id]` 화면 + 대시보드 "새 프로젝트" 버튼.
+  NDJSON을 한 줄씩 읽어 답변을 이어붙이고, `thinking` 이벤트에 "생각하는 중…" 표시, 전송 중 재전송 차단. 커밋 `ed05e31`→`13ef996`.
+  **경로 결정**: plan.md의 `/projects/[id]/chat`은 projects 표가 생기는 [P4-2] 이후로 미루고, 지금은 `/conversations/[id]`를 쓴다.
+- [x] **[P3-6] 완료** — gate 이벤트를 받으면 "예, 이대로 진행"/"수정할 게 있어요" 버튼 표시. 승인만 `approved:true`로 재요청하고, 서버는 그때만 다음 블록으로 옮긴 뒤 `block` 이벤트로 화면 표시를 갱신. 커밋 `fc3cea9`.
+- [ ] **[P3-7]** 슬라이스 2 검증 — "홈페이지 만들고 싶어" 입력 → 헌장~계획까지 실제 대화 진행 확인.
+  **선행(사용자 작업)**: Supabase SQL Editor에서 `SDVC-app/supabase/migrations/0003_conversations.sql` 실행. 이게 안 되면 대화 생성부터 실패한다.
 
 ## 5. 막힌 것 / 사용자 결정 대기
 
-- 없음. [P3-4]부터 이어서 진행하면 된다.
+- **[P3-7] 진행 전 사용자 작업 1건**: Supabase 대시보드 → SQL Editor에서 `SDVC-app/supabase/migrations/0003_conversations.sql` 내용을 붙여넣고 Run. 완료되면 바로 [P3-7] 실브라우저 검증에 들어간다.
 
 ## 6. 알아둘 함정
 
