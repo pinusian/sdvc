@@ -1,6 +1,6 @@
 # 진행 상황
 
-> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P1-5] Analyze 완료 → **[P2-1] Implement 시작 예정**
+> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P2-1] 완료 → **[P2-2] Vercel 배포 예정**
 
 ## 1. 지금 어디까지 왔나
 
@@ -27,15 +27,27 @@
 
 ## 3. 검증 증거 (실제 실행한 명령과 결과)
 
-- 이 세션은 전부 문서·설계 작업이었고 코드 구현은 아직 없음. 실행 검증 대상 없음.
 - `gh repo create sdvc-app --private` 및 `git push -u origin main` 성공 확인 (`gh repo view` → isEmpty:false)
 - `node -v` → v24.19.0 확인
+- [P2-1] `sdvc-app`에서 실제 실행:
+  ```
+  $ npm run test
+  Test Files  1 passed (1)
+       Tests  1 passed (1)
+
+  $ npm run lint
+  (오류 없음)
+
+  $ npm run build
+  ✓ Compiled successfully in 20.8s
+  Route (app): / , /_not-found (모두 Static)
+  ```
+  커밋: `6e00a8b` (sdvc-app 저장소)
 
 ## 4. 다음 세션이 이어서 할 일
 
-**[P2-1] Next.js 프로젝트 생성**부터 시작 — `SDVC-app/` 로컬 폴더에 Next.js 14(App Router)+TypeScript 뼈대를 만든다.
-
-- [ ] [P2-1] Next.js 프로젝트 생성 (뼈대, 테스트 대상 아님)
+- [x] **[P2-1] 완료** — `SDVC-app/` (GitHub `pinusian/sdvc-app`)에 Next.js **16**(App Router)+TypeScript+Tailwind 뼈대 생성. Vitest+Playwright 테스트 도구 설정, 스모크테스트 통과. `npm run test`/`lint`/`build` 전부 실행 확인함(아래 §3 증거).
+  **주의**: plan.md엔 "Next.js 14"라 적었으나 실제 설치판은 **16.3.4**(React 19.2.8) — AGENTS.md 경고에 따라 실제 문서(`node_modules/next/dist/docs`) 확인 후 진행함. params/searchParams가 Promise, PageProps/LayoutProps 전역 헬퍼 타입 사용 등 컨벤션 차이 있음 — 다음 작업(P2-5 이후) 코드 작성 시 계속 유의할 것.
 - [ ] [P2-2] Vercel 첫 배포 — **여기서 P0-2 Vercel 가입을 다시 확인할 것** (지난 세션에 보류됨, OAuth 오류 트러블슈팅 5단계 안내 이력 있음)
 - [ ] [P2-3] Supabase 연결·환경변수 틀 — P0-3(Supabase 프로젝트 생성) 완료 여부도 이때 재확인
 - [ ] [P2-4]~[P2-9] tasks.md 순서대로 TDD 진행 (RED→GREEN→REFACTOR, 매 단계 `[P2-#]` 태그로 커밋)
