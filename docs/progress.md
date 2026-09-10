@@ -1,6 +1,6 @@
 # 진행 상황
 
-> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: **[P2-9] 완료 — 슬라이스 1(로그인·인증) 전체 종료** → **슬라이스 2(Phase 3, SDVC 엔진) 시작 예정**
+> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: **슬라이스 2 진행 중 — [P3-1]·[P3-2]·[P3-3] 완료, 다음은 [P3-4] 대화 상태 DB 저장**
 
 ## 1. 지금 어디까지 왔나
 
@@ -17,7 +17,10 @@
 - 완료: [P2-7] 관리자 자동승격(FR-024) + 2FA 검사 primitive + **보안 취약점 발견·수정**(자기수정 RLS 허점)
 - 완료: [P2-8] 회원가입·로그인·대시보드 실제 화면 + UI 표준 확정(ALCP webapp-reading 디자인 톤 이식)
 - 완료: [P2-9] Playwright E2E 4종 통과 + Vercel 프로덕션 환경변수 등록·검증 — **슬라이스 1(로그인·인증) 완전 종료**
-- **다음: [P3-1] ANTHROPIC_API_KEY 설정부터 슬라이스 2(Phase 3, SDVC 엔진) 시작 — 예상 8.5세션, 가장 어려운 구간**
+- 완료: [P3-1] ANTHROPIC_API_KEY 로컬·Vercel 설정 확인 (실제 API 호출로 키 유효성 검증)
+- 완료: [P3-2] 대화 API 뼈대 `/api/chat` (RED→GREEN→REFACTOR 3커밋)
+- 완료: [P3-3] SDVC 진행대본을 서버 프롬프트 모듈로 이식 — **슬라이스 2의 핵심 작업** (RED→GREEN + 실제 API 검증 중 발견한 결함 1건 수정)
+- **다음: [P3-4] 대화 상태 DB 저장(conversations·messages 표)**
 
 ## 2. 방금 세션에서 한 일 (2026-09-10, 이 세션)
 
@@ -33,6 +36,10 @@
 - 사용자 지시로 **모든 작업에 WBS 작업 ID `[P#-#]` 명시하는 관행** 확립 (`_작업기억/SDVC/context.md`에 기록)
 
 ## 3. 검증 증거 (실제 실행한 명령과 결과)
+
+- [P3-1~P3-3] `npm run test` → **Test Files 11 passed / Tests 61 passed**, `npm run lint` 무오류, `npm run build` ✓ Compiled successfully (라우트 8개, `/api/chat` 포함)
+- [P3-3] **실제 Claude API로 이식된 대본 검증** (`claude-sonnet-5`, block=plan, max_tokens 4000): 응답에 화면 구성·폴더 구조·**헌장 점검 표**·승인 선택지 3종("예, 이대로 진행(권장)"/"일부 수정"/"다시 설명")이 대본 지시대로 나왔고, 마지막 줄에 `<<SDVC_GATE:plan>>` 마커가 정확히 출력됨. block=constitution_specify로는 헌장 4종 추천 + 쉬운 말 비유가 나오는 것 확인.
+- [P3-3] **검증 중 결함 1건 발견·수정**: 모델이 계획 수립 같은 요청에서 **스스로 확장 사고(thinking)를 켜는데**, 그동안 `text_delta`가 안 나와 화면이 멈춘 것처럼 보였다(max_tokens가 작으면 사고만 하다 끝나 아예 빈 응답). 사고 내용은 감추되 `{"type":"thinking"}` 신호를 한 번 보내도록 RED→GREEN으로 수정.
 
 - `gh repo create sdvc-app --private` 및 `git push -u origin main` 성공 확인 (`gh repo view` → isEmpty:false)
 - `node -v` → v24.19.0 확인
@@ -86,11 +93,15 @@
   **트러블슈팅 과정**(참고용): ①환경변수 저장 직후엔 재배포가 자동으로 일어나지 않는다는 걸 몰라 혼선 ②`NEXT_PUBLIC_*` 변수를 처음에 "Secret" 타입으로 저장했다가 "Config"로 전환 불가 → 삭제 후 Config로 재생성 ③재배포 후에도 계속 false로 나와 원인 조사 → **`sdvc-app-b5vk.vercel.app`이 실제 프로덕션 기본 도메인이 아니었음**(진짜는 `sdvc-app.vercel.app`)이 근본 원인으로 밝혀짐. Vercel 최신 UI(Environment Variables가 별도 사이드바 메뉴로 분리, Domains도 프로젝트 세팅 하위)라 경로 찾기에 시간이 걸림.
   **슬라이스 1(로그인·인증) 완전 종료** — 로컬(P2-1~P2-9)과 프로덕션 모두 검증 완료.
 
-### 다음 세션이 할 일 — 슬라이스 2(Phase 3, SDVC 엔진) 7작업 (tasks.md 기준)
+### 슬라이스 2(Phase 3, SDVC 엔진) 7작업 (tasks.md 기준)
 
-- [ ] **[P3-1]** ANTHROPIC_API_KEY를 `.env.local`(+Vercel)에 설정 (사용자 작업 — 이미 P0-1에서 키는 발급받음, .env.local에 넣는 것만 남음)
-- [ ] **[P3-2]** 대화 API 뼈대 (`/api/chat`, RED→GREEN→REFACTOR)
-- [ ] **[P3-3]** SDVC 진행대본을 서버 프롬프트 모듈로 이식 — `skill/sdvc-guide/references/00-guided-session-script.md`의 5블록 7단계 절차를 코드화하는 핵심 작업
+- [x] **[P3-1] 완료** — `.env.local`에 5종 모두 채워져 있음을 확인(값은 출력하지 않고 존재 여부만 점검). 실제 Anthropic API 호출로 키 유효성 검증: `GET /v1/models` → 200, 사용 가능 모델에 `claude-sonnet-5`·`claude-opus-5` 확인. Vercel 프로덕션은 [P2-9]에서 이미 `anthropicKeyConfigured:true`.
+- [x] **[P3-2] 완료** — `src/lib/claude/chat.ts`(Anthropic Messages 스트리밍 호출) + `src/app/api/chat/route.ts`.
+  설계: ①fetch를 주입받아 네트워크 없이 테스트 가능([P2-5]와 같은 구조) ②바깥으로는 SSE가 아니라 **NDJSON 이벤트**(`{"type":"text"|"thinking"|"done"|"error"}`)를 흘림 — [P3-6] 승인 게이트처럼 텍스트 아닌 사건을 같은 통로로 추가하려고 ③라우트가 `role`을 user/assistant로만 제한 — 클라이언트가 system을 끼워넣어 진행대본을 덮어쓰지 못하게.
+  REFACTOR에서 직접 만든 ReadableStream → `TransformStream`으로 교체(역압 확보). 커밋 `fab149c`→`126b590`→`9329f5f`.
+- [x] **[P3-3] 완료** — `src/lib/sdvc/blocks.ts`(5블록·7단계·게이트 위치·`advanceBlock` fail-closed) + `src/lib/sdvc/prompt.ts`(`buildSystemPrompt`). 라우트가 `block`·`projectName`을 받아 해당 블록 프롬프트를 system으로 전달, 모르는 block은 400.
+  대본 준수를 테스트로 고정: 블록 순서, 7단계 배치, 게이트는 Plan·Tasks에만, 관통 규칙 4가지(예시 답안/쉬운 말/증거 기반/승인 게이트) 전 블록 포함, 헌장 보안 규칙 포함, 서버 비밀값 미포함.
+  커밋 `aa93e6c`→`d16a07d`, 결함 수정 `a6a31ca`→`4db52f9`.
 - [ ] **[P3-4]** 대화 상태 DB 저장 (세션 끊겨도 이어서 진행)
 - [ ] **[P3-5]** 채팅 화면 (스트리밍 표시)
 - [ ] **[P3-6]** 승인 게이트 UI (계획·작업분해 단계 승인/수정 버튼)
@@ -98,7 +109,7 @@
 
 ## 5. 막힌 것 / 사용자 결정 대기
 
-- 없음. 다음 세션은 바로 슬라이스 2(Phase 3, SDVC 엔진) 착수 가능.
+- 없음. [P3-4]부터 이어서 진행하면 된다.
 
 ## 6. 알아둘 함정
 
@@ -108,4 +119,7 @@
 - 트리거: `SDVC서버 구축`(시작/재개) · `작업 휴식`(저장 후 중단)
 - 이 PC에는 LibreOffice 없음 — WBS docx 육안검증 불가, python-docx 구조검증까지만.
 - **프로덕션 URL은 `https://sdvc-app.vercel.app`이다.** `sdvc-app-b5vk.vercel.app`이 아니다 — 첫 배포 완료 화면에 표시된 도메인을 잘못 믿어서 한동안 헷갈렸다(위 P0-2/P2-2 항목 참고). 앞으로 프로덕션 확인 시 이 URL을 쓸 것.
+- **모델은 확장 사고(thinking)를 스스로 켠다.** 사고 중에는 텍스트가 안 나오므로 `max_tokens`가 작으면 응답이 통째로 비어 보인다. `/api/chat`은 기본 8192 토큰이고 사고 중에는 `{"type":"thinking"}` 이벤트를 보낸다 — [P3-5] 채팅 화면에서 이 이벤트로 "생각하는 중" 표시를 해야 한다.
+- **vitest 워커 타임아웃**은 이 PC에서 가끔 나는 인프라 문제다(테스트 실패 아님). 같은 명령을 한 번 더 실행하면 정상 통과한다 — RED로 오인하지 말 것.
+- `sdvc-app` 저장소에는 git 사용자 정보가 설정돼 있지 않아 커밋이 거부될 수 있다. `git config user.name pinusian` / `user.email pinusian@gmail.com`(기존 커밋과 동일)으로 저장소에 로컬 설정해 두었다.
 - Vercel 최신 UI: **Environment Variables**와 **Domains**는 각각 `.../settings/environment-variables`, `.../settings/domains` — 사이드바 목록에 이름 그대로 안 보일 수 있으니 URL 직접 수정이 빠르다. `NEXT_PUBLIC_*` 변수는 타입을 **Config**로(Secret은 나중에 되돌릴 수 없음), 나머지는 **Secret**으로.
