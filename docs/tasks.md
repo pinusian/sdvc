@@ -24,7 +24,7 @@
 | P2-4 | 역할·등급·권한 DB 설계 | — (스키마) |
 | P2-5 | 개발자 회원가입·로그인 | RED(가입 실패 테스트) → GREEN(구현) → REFACTOR |
 | P2-6 | 권한 검사 공통 모듈 | RED → GREEN → REFACTOR |
-| P2-7 | 서버관리자 계정·2FA | RED → GREEN → REFACTOR |
+| P2-7 | 서버관리자 계정·2FA (환경변수 `ADMIN_EMAIL` 지정 이메일 가입 시 자동 role='admin', FR-024) | RED → GREEN → REFACTOR |
 | P2-8 | 로그인 화면·대시보드 | 화면 구현 + Playwright E2E |
 | P2-9 | 슬라이스 1 검증 | 브라우저 실행 증거 수집 |
 
@@ -46,7 +46,7 @@
 |---|---|---|
 | P4-1 | Storage 버킷·권한 정책 | — (설정) |
 | P4-2 | 프로젝트 메타 표 설계 | — (스키마) |
-| P4-3 | 파일 생성·저장 로직 | RED → GREEN → REFACTOR |
+| P4-3 | 파일 생성·저장 로직 (**생성+삭제**, FR-022) | RED → GREEN → REFACTOR — 저장과 삭제(DELETE /api/projects/[id])를 같은 슬라이스에서 함께 구현 |
 | P4-4 | 생성 진행 표시 UI | 화면 구현 |
 | P4-5 | 슬라이스 3 검증 | Storage 확인 증거 |
 
