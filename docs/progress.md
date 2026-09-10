@@ -16,8 +16,8 @@
 - 완료: [P2-6] 권한 검사 공통 모듈 `can()` (WBS 2.4절 매트릭스 그대로 구현)
 - 완료: [P2-7] 관리자 자동승격(FR-024) + 2FA 검사 primitive + **보안 취약점 발견·수정**(자기수정 RLS 허점)
 - 완료: [P2-8] 회원가입·로그인·대시보드 실제 화면 + UI 표준 확정(ALCP webapp-reading 디자인 톤 이식)
-- 완료: [P2-9] Playwright E2E 4종 작성·통과 (로컬)
-- **다음: Vercel 프로덕션 환경변수 등록 확인 → 확인되면 슬라이스 2(Phase 3, SDVC 엔진)로**
+- 완료: [P2-9] Playwright E2E 4종 통과 + Vercel 프로덕션 환경변수 등록·검증 — **슬라이스 1(로그인·인증) 완전 종료**
+- **다음: [P3-1] ANTHROPIC_API_KEY 설정부터 슬라이스 2(Phase 3, SDVC 엔진) 시작 — 예상 8.5세션, 가장 어려운 구간**
 
 ## 2. 방금 세션에서 한 일 (2026-09-10, 이 세션)
 
@@ -85,6 +85,16 @@
 - [x] **Vercel 프로덕션 환경변수 5종 등록 완료 및 검증** — `https://sdvc-app.vercel.app/api/health` → `{supabaseUrlConfigured:true, supabaseKeyConfigured:true, supabaseReachable:true, anthropicKeyConfigured:true}`. 루트 `/`도 500→307(정상 리다이렉트)로 회복.
   **트러블슈팅 과정**(참고용): ①환경변수 저장 직후엔 재배포가 자동으로 일어나지 않는다는 걸 몰라 혼선 ②`NEXT_PUBLIC_*` 변수를 처음에 "Secret" 타입으로 저장했다가 "Config"로 전환 불가 → 삭제 후 Config로 재생성 ③재배포 후에도 계속 false로 나와 원인 조사 → **`sdvc-app-b5vk.vercel.app`이 실제 프로덕션 기본 도메인이 아니었음**(진짜는 `sdvc-app.vercel.app`)이 근본 원인으로 밝혀짐. Vercel 최신 UI(Environment Variables가 별도 사이드바 메뉴로 분리, Domains도 프로젝트 세팅 하위)라 경로 찾기에 시간이 걸림.
   **슬라이스 1(로그인·인증) 완전 종료** — 로컬(P2-1~P2-9)과 프로덕션 모두 검증 완료.
+
+### 다음 세션이 할 일 — 슬라이스 2(Phase 3, SDVC 엔진) 7작업 (tasks.md 기준)
+
+- [ ] **[P3-1]** ANTHROPIC_API_KEY를 `.env.local`(+Vercel)에 설정 (사용자 작업 — 이미 P0-1에서 키는 발급받음, .env.local에 넣는 것만 남음)
+- [ ] **[P3-2]** 대화 API 뼈대 (`/api/chat`, RED→GREEN→REFACTOR)
+- [ ] **[P3-3]** SDVC 진행대본을 서버 프롬프트 모듈로 이식 — `skill/sdvc-guide/references/00-guided-session-script.md`의 5블록 7단계 절차를 코드화하는 핵심 작업
+- [ ] **[P3-4]** 대화 상태 DB 저장 (세션 끊겨도 이어서 진행)
+- [ ] **[P3-5]** 채팅 화면 (스트리밍 표시)
+- [ ] **[P3-6]** 승인 게이트 UI (계획·작업분해 단계 승인/수정 버튼)
+- [ ] **[P3-7]** 슬라이스 2 검증 — "홈페이지 만들고 싶어" 입력 → 헌장~계획까지 실제 대화 진행 확인
 
 ## 5. 막힌 것 / 사용자 결정 대기
 
