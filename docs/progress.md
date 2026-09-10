@@ -1,6 +1,6 @@
 # 진행 상황
 
-> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P2-1] 완료 → **[P2-2] Vercel 배포 예정**
+> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P2-2] 완료 → **[P2-3] Supabase 연결 예정**
 
 ## 1. 지금 어디까지 왔나
 
@@ -48,15 +48,18 @@
 
 - [x] **[P2-1] 완료** — `SDVC-app/` (GitHub `pinusian/sdvc-app`)에 Next.js **16**(App Router)+TypeScript+Tailwind 뼈대 생성. Vitest+Playwright 테스트 도구 설정, 스모크테스트 통과. `npm run test`/`lint`/`build` 전부 실행 확인함(아래 §3 증거).
   **주의**: plan.md엔 "Next.js 14"라 적었으나 실제 설치판은 **16.3.4**(React 19.2.8) — AGENTS.md 경고에 따라 실제 문서(`node_modules/next/dist/docs`) 확인 후 진행함. params/searchParams가 Promise, PageProps/LayoutProps 전역 헬퍼 타입 사용 등 컨벤션 차이 있음 — 다음 작업(P2-5 이후) 코드 작성 시 계속 유의할 것.
-- [ ] [P2-2] Vercel 첫 배포 — **여기서 P0-2 Vercel 가입을 다시 확인할 것** (지난 세션에 보류됨, OAuth 오류 트러블슈팅 5단계 안내 이력 있음)
+- [x] **[P0-2]+[P2-2] 완료** — Vercel 가입(이메일 `parkbctop@hotmail.com`) 성공, GitHub(`pinusian`) 연결, `sdvc-app` 첫 배포 성공.
+  프로덕션 도메인: **https://sdvc-app-b5vk.vercel.app**
+  (개별 배포 URL: `sdvc-app-b5vk-62pxbymea-sdvc.vercel.app` — 매 배포마다 바뀌므로 위 도메인 기준으로 접속할 것)
+  문제 해결 이력: 최초 배포가 "Installing dependencies..."에서 실패 → npm peer-dependency 충돌(로컬에서 이미 겪었던 것과 동일) → `.npmrc`(legacy-peer-deps=true) 추가로 해결, 재배포 성공(sdvc-app 커밋 `4db547f`)
 - [ ] [P2-3] Supabase 연결·환경변수 틀 — P0-3(Supabase 프로젝트 생성) 완료 여부도 이때 재확인
 - [ ] [P2-4]~[P2-9] tasks.md 순서대로 TDD 진행 (RED→GREEN→REFACTOR, 매 단계 `[P2-#]` 태그로 커밋)
 - [ ] 슬라이스 1(Phase 2) 끝나면 [P2-9]에서 브라우저 실행 증거 남기고 슬라이스 2(Phase 3)로
 
 ## 5. 막힌 것 / 사용자 결정 대기
 
-- [P0-2] Vercel 가입 미완료 — [P2-2] 착수 전까지 완료 필요. 재개 시 먼저 물어볼 것.
-- [P0-1] Anthropic API 키, [P0-3] Supabase 완료 여부 — 이번 세션에 재확인 못 함. [P3-1]/[P2-3] 착수 전 확인 필요.
+- ~~[P0-2] Vercel 가입 미완료~~ → 완료(위 참조)
+- [P0-1] Anthropic API 키, [P0-3] Supabase 완료 여부 — 아직 재확인 못 함. **[P2-3] 착수 시 바로 물어볼 것.**
 
 ## 6. 알아둘 함정
 
