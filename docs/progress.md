@@ -1,6 +1,6 @@
 # 진행 상황
 
-> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: **슬라이스 2 — [P3-1]~[P3-6] 코드 완료, [P3-7] 검증만 남음 (사용자가 Supabase에 0003 마이그레이션 실행해야 진행 가능)**
+> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: **[P3-7] 완료 — 슬라이스 2(SDVC 엔진) 전체 종료** → **슬라이스 3(Phase 4, 산출물 생성·저장) 시작 예정**
 
 ## 1. 지금 어디까지 왔나
 
@@ -23,7 +23,8 @@
 - 완료: [P3-4] 대화 상태 DB 저장 — `conversations`·`messages` 표, 저장소 모듈, `/api/chat` 계약을 대화 ID 기반으로 전환, `/api/conversations` 2종 추가
 - 완료: [P3-5] 채팅 화면(`/conversations/[id]`) — 스트리밍 표시·"생각하는 중"·오류 표시, 대시보드 "새 프로젝트" 연결
 - 완료: [P3-6] 승인 게이트 UI — gate 이벤트 → 승인/수정 버튼, 승인 시에만 다음 블록
-- **다음: [P3-7] 슬라이스 2 검증 — 먼저 사용자가 Supabase SQL Editor에서 `0003_conversations.sql` 실행해야 함**
+- 완료: [P3-7] 슬라이스 2 검증 — 실제 Claude API로 브라우저에서 헌장→명세→명확화→계획까지 진행 확인, E2E 3종 추가. **슬라이스 2(SDVC 엔진) 완전 종료**
+- **다음: 슬라이스 3(Phase 4, 산출물 생성·저장) — [P4-1] Storage 버킷·권한 정책부터**
 
 ## 2. 방금 세션에서 한 일 (2026-09-10, 이 세션)
 
@@ -42,6 +43,7 @@
 
 - [P3-1~P3-3] `npm run test` → **Test Files 11 passed / Tests 61 passed**, `npm run lint` 무오류, `npm run build` ✓ Compiled successfully (라우트 8개, `/api/chat` 포함)
 - [P3-3] **실제 Claude API로 이식된 대본 검증** (`claude-sonnet-5`, block=plan, max_tokens 4000): 응답에 화면 구성·폴더 구조·**헌장 점검 표**·승인 선택지 3종("예, 이대로 진행(권장)"/"일부 수정"/"다시 설명")이 대본 지시대로 나왔고, 마지막 줄에 `<<SDVC_GATE:plan>>` 마커가 정확히 출력됨. block=constitution_specify로는 헌장 4종 추천 + 쉬운 말 비유가 나오는 것 확인.
+- [P3-7] 최종: `npm run test` → **Tests 94 passed (14 files)**, `npx playwright test` → **7 passed**(슬라이스1 4종 + 슬라이스2 3종). 프로덕션 재배포 확인: `https://sdvc-app.vercel.app/api/health` 4개 플래그 모두 true, `/conversations/<id>` 307(비로그인 리다이렉트 = 라우트 배포됨).
 - [P3-4~P3-6] `npm run test` → **Test Files 14 passed / Tests 92 passed**, `npm run lint` 무경고, `npm run build` ✓ (라우트 11개: `/api/chat`, `/api/conversations`, `/api/conversations/[id]`, `/conversations/[id]` 추가)
 - [P3-5] 자체 결함 1건: jsdom에 `scrollIntoView`가 없어 스트리밍이 첫 청크에서 중단됐다 → `?.()`로 있을 때만 호출하도록 수정(테스트가 잡아냄).
 - [P3-3] **검증 중 결함 1건 발견·수정**: 모델이 계획 수립 같은 요청에서 **스스로 확장 사고(thinking)를 켜는데**, 그동안 `text_delta`가 안 나와 화면이 멈춘 것처럼 보였다(max_tokens가 작으면 사고만 하다 끝나 아예 빈 응답). 사고 내용은 감추되 `{"type":"thinking"}` 신호를 한 번 보내도록 RED→GREEN으로 수정.
@@ -114,12 +116,17 @@
   NDJSON을 한 줄씩 읽어 답변을 이어붙이고, `thinking` 이벤트에 "생각하는 중…" 표시, 전송 중 재전송 차단. 커밋 `ed05e31`→`13ef996`.
   **경로 결정**: plan.md의 `/projects/[id]/chat`은 projects 표가 생기는 [P4-2] 이후로 미루고, 지금은 `/conversations/[id]`를 쓴다.
 - [x] **[P3-6] 완료** — gate 이벤트를 받으면 "예, 이대로 진행"/"수정할 게 있어요" 버튼 표시. 승인만 `approved:true`로 재요청하고, 서버는 그때만 다음 블록으로 옮긴 뒤 `block` 이벤트로 화면 표시를 갱신. 커밋 `fc3cea9`.
-- [ ] **[P3-7]** 슬라이스 2 검증 — "홈페이지 만들고 싶어" 입력 → 헌장~계획까지 실제 대화 진행 확인.
-  **선행(사용자 작업)**: Supabase SQL Editor에서 `SDVC-app/supabase/migrations/0003_conversations.sql` 실행. 이게 안 되면 대화 생성부터 실패한다.
+- [x] **[P3-7] 완료** — 사용자가 `0003_conversations.sql` 실행 후 실브라우저 검증. 커밋 `4477ad0`·`4c6e487`.
+  **실제 대화 진행 증거**(로컬 dev + 실제 Claude API, 테스트계정은 관리자API로 생성 후 삭제): "홈페이지 만들고 싶어" → 블록1에서 헌장 4종을 표로 쉬운 말 설명 + 예시 답변 → 답변 후 명세(User Story P1/P2, FR-001~, SC-001~) 생성 → 승인 버튼 → **블록 2 명확화** 5문항 객관식(권장안+예시답변) → 승인 → **블록 3 계획**: 폴더구조·화면구성·**헌장 점검 표**·승인 선택지 3종. `.env.example`은 빈 틀만 만들겠다고 스스로 말함(헌장 보안규칙이 실제로 작동).
+  DB 확인: `conversations.current_block='plan'`, 메시지 14건 저장, **마커가 남은 메시지 0건**(화면·DB 모두 새어나오지 않음).
+  **검증 중 결함 1건 발견·수정**: 게이트 블록(Plan·Tasks)에만 마커를 지시했더니 헌장·명확화 블록에서는 사용자가 "예"라고 해도 **다음 블록으로 갈 방법이 자체가 없었다**(단계 이동은 마커→확인버튼으로만 일어나므로). → 모든 블록이 마커를 내도록 변경. 추가 예방책으로 "사용자가 말로 예라고 해도 다음 블록 일을 미리 시작하지 말고 확인 버튼을 다시 띄운다"를 프롬프트에 명시.
+  `e2e/chat.spec.ts` 3종 추가: 스트리밍 표시·마커 감추기·승인 게이트 전환 / 저장된 대화 복원 / 남의 대화 404.
+  **주의**: Anthropic 호출은 **서버**가 하므로 Playwright의 `page.route('https://api.anthropic.com/...')`로는 못 막는다(처음에 이렇게 짰다가 실패). `/api/chat` 응답 자체를 대신 돌려주는 방식으로 작성했다.
 
 ## 5. 막힌 것 / 사용자 결정 대기
 
-- **[P3-7] 진행 전 사용자 작업 1건**: Supabase 대시보드 → SQL Editor에서 `SDVC-app/supabase/migrations/0003_conversations.sql` 내용을 붙여넣고 Run. 완료되면 바로 [P3-7] 실브라우저 검증에 들어간다.
+- 없음. 다음 세션은 바로 슬라이스 3(Phase 4, 산출물 생성·저장) 착수 가능.
+- 참고: 사용자 계정(`parkbctop@hotmail.com`)으로 만든 시험용 대화 1건이 DB에 남아 있다(지워도 무방).
 
 ## 6. 알아둘 함정
 
@@ -130,6 +137,8 @@
 - 이 PC에는 LibreOffice 없음 — WBS docx 육안검증 불가, python-docx 구조검증까지만.
 - **프로덕션 URL은 `https://sdvc-app.vercel.app`이다.** `sdvc-app-b5vk.vercel.app`이 아니다 — 첫 배포 완료 화면에 표시된 도메인을 잘못 믿어서 한동안 헷갈렸다(위 P0-2/P2-2 항목 참고). 앞으로 프로덕션 확인 시 이 URL을 쓸 것.
 - **모델은 확장 사고(thinking)를 스스로 켠다.** 사고 중에는 텍스트가 안 나오므로 `max_tokens`가 작으면 응답이 통째로 비어 보인다. `/api/chat`은 기본 8192 토큰이고 사고 중에는 `{"type":"thinking"}` 이벤트를 보낸다 — [P3-5] 채팅 화면에서 이 이벤트로 "생각하는 중" 표시를 해야 한다.
+- **dev 서버가 유령으로 남는다**: 이전 세션의 Playwright가 띄운 dev 서버가 포트 3000을 계속 물고 있다가 워커가 죽어 500을 뱉었다(원인 찾는 데 시간 씀). `Get-NetTCPConnection -LocalPort 3000`으로 확인하고 필요하면 종료 후 새로 띄울 것.
+- **`.claude/launch.json`의 preview_start는 이 PC에서 실패한다**(`'C:\Program' ...` 오류 — npm 경로 공백 문제). dev 서버는 Bash 백그라운드로 `npm run dev` 하는 편이 확실하다.
 - **vitest 워커 타임아웃**은 이 PC에서 가끔 나는 인프라 문제다(테스트 실패 아님). 같은 명령을 한 번 더 실행하면 정상 통과한다 — RED로 오인하지 말 것.
 - `sdvc-app` 저장소에는 git 사용자 정보가 설정돼 있지 않아 커밋이 거부될 수 있다. `git config user.name pinusian` / `user.email pinusian@gmail.com`(기존 커밋과 동일)으로 저장소에 로컬 설정해 두었다.
 - Vercel 최신 UI: **Environment Variables**와 **Domains**는 각각 `.../settings/environment-variables`, `.../settings/domains` — 사이드바 목록에 이름 그대로 안 보일 수 있으니 URL 직접 수정이 빠르다. `NEXT_PUBLIC_*` 변수는 타입을 **Config**로(Secret은 나중에 되돌릴 수 없음), 나머지는 **Secret**으로.
