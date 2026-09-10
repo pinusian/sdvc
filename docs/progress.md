@@ -1,6 +1,6 @@
 # 진행 상황
 
-> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P0] 진행 중 — G1·G2 게이트 통과
+> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P0] 마무리 단계 — G1·G2 통과, [P0-7] 저장소 생성 완료
 
 ## 1. 지금 어디까지 왔나
 
@@ -63,9 +63,12 @@ WBS(`10_SDVC_웹서비스/WBS_서버구축.md`)의 **Phase 0**을 마무리한�
 
 - [x] **[P0-5] 게이트 G1** — 확정: TypeScript 단일 + Claude API 직접호출 + 신규저장소(`sdvc-app`) 분리
 - [x] **[P0-6] 게이트 G2** — 확정: 체험7일 / 기본 3개·200만토큰·$12 / 프로 10개·800만토큰·$35
-- [ ] **[P0-1]~[P0-4]** 사용자 계정 준비 상황 확인 (Anthropic API키·Vercel·Supabase·Node.js)
-- [ ] **[P0-7]** GitHub에 신규 저장소 `sdvc-app` 생성 (G1 결정에 따름)
-- [ ] Phase 0 완료 후 **[P1-1] Specify** → `docs/spec.md`. 3계층 역할별로 User Story를 나눠 작성
+- [x] **[P0-4]** Node.js v24.19.0 확인됨
+- [x] **[P0-7]** GitHub 저장소 [`pinusian/sdvc-app`](https://github.com/pinusian/sdvc-app) 생성 완료. 로컬 위치: `C:\Users\USER\Claude작업용폴더\AI Vibecoding\SDVC-app\`
+- [ ] **[P0-2] 보류 중** — Vercel 가입 시도 중 GitHub OAuth 리디렉션 오류(스크린샷 확인). 트러블슈팅 5단계 안내함(시크릿창/애드블록끄기/GitHub 승인앱 확인/다른브라우저 등). **[P2-2](Vercel 첫 배포) 시점에 다시 리마인드할 것** — 사용자 명시적 요청(2026-09-10)
+- [ ] **[P0-1]** Anthropic API 키 — 발급 여부 미확인. 가이드는 전달함. [P3-1](환경변수 설정) 전까지만 필요하므로 급하지 않음
+- [ ] **[P0-3]** Supabase 프로젝트 생성 — 가이드는 전달함(서울 리전 권장), 완료 여부 미확인. [P2-3] 전까지 필요
+- [ ] Phase 0 마무리 후 **[P1-1] Specify** → `docs/spec.md`. 3계층 역할별로 User Story를 나눠 작성
 - [ ] **[P1-6]**에서 권한 매트릭스를 `docs/permissions.md`로 분리 문서화
 
 ## 4-1. 작업 표기 규칙 (2026-09-10, 사용자 지시)
