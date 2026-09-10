@@ -1,6 +1,6 @@
 # 진행 상황
 
-> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P2-2] 완료 → **[P2-3] Supabase 연결 예정**
+> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P2-3] 완료 → **[P2-4] 역할·등급·권한 DB 설계 예정**
 
 ## 1. 지금 어디까지 왔나
 
@@ -52,14 +52,17 @@
   프로덕션 도메인: **https://sdvc-app-b5vk.vercel.app**
   (개별 배포 URL: `sdvc-app-b5vk-62pxbymea-sdvc.vercel.app` — 매 배포마다 바뀌므로 위 도메인 기준으로 접속할 것)
   문제 해결 이력: 최초 배포가 "Installing dependencies..."에서 실패 → npm peer-dependency 충돌(로컬에서 이미 겪었던 것과 동일) → `.npmrc`(legacy-peer-deps=true) 추가로 해결, 재배포 성공(sdvc-app 커밋 `4db547f`)
-- [ ] [P2-3] Supabase 연결·환경변수 틀 — P0-3(Supabase 프로젝트 생성) 완료 여부도 이때 재확인
+- [x] **[P0-1]+[P0-3]+[P2-3] 완료** — Anthropic 키·Supabase 프로젝트 준비 확인됨. `lib/supabase/{client,server}.ts` 작성(Next.js 16 cookies() Promise 반영), `.env.example`을 Supabase 신규 키 명칭(publishable/secret key)으로 갱신, `/api/health` 라우트로 연결 확인.
+  로컬 `.env.local`로 종단간 검증: publishable key→`/auth/v1/health` 200 / secret key→`/rest/v1/` 200.
+  진행 중 오류 2건 발견·수정: URL에 대시보드 링크를 넣었던 것(→API URL로 정정), `.supabase.com` 오타(→`.co`로 정정). 헬스체크 라우트 자체도 잘못된 엔드포인트(secret key 필요한 곳을 publishable key로 호출) 쓰고 있던 걸 수정(`bd5f6b4`).
+  **⚠️ Vercel 프로덕션 환경변수는 아직 미등록** — 로컬만 확인됨. [P2-9] 슬라이스 검증 전까지 Vercel 대시보드에도 등록 필요.
 - [ ] [P2-4]~[P2-9] tasks.md 순서대로 TDD 진행 (RED→GREEN→REFACTOR, 매 단계 `[P2-#]` 태그로 커밋)
 - [ ] 슬라이스 1(Phase 2) 끝나면 [P2-9]에서 브라우저 실행 증거 남기고 슬라이스 2(Phase 3)로
 
 ## 5. 막힌 것 / 사용자 결정 대기
 
 - ~~[P0-2] Vercel 가입 미완료~~ → 완료(위 참조)
-- [P0-1] Anthropic API 키, [P0-3] Supabase 완료 여부 — 아직 재확인 못 함. **[P2-3] 착수 시 바로 물어볼 것.**
+- **Vercel 프로덕션 환경변수 미등록** — `.env.example`의 5개 항목을 Vercel 프로젝트 Settings → Environment Variables에 등록해야 배포판에서도 동작함. [P2-9] 전까지 처리.
 
 ## 6. 알아둘 함정
 
