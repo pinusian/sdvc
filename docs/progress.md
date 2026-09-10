@@ -1,6 +1,6 @@
 # 진행 상황
 
-> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: **[P3-7] 완료 — 슬라이스 2(SDVC 엔진) 전체 종료** → **슬라이스 3(Phase 4, 산출물 생성·저장) 시작 예정**
+> 마지막 업데이트: 2026-09-11 · 프로젝트: SDVC 웹서비스 · 현재 단계: **[P4-5] 완료 — 슬라이스 3(산출물 생성·저장) 전체 종료** → **슬라이스 4(Phase 5, 산출물 URL 서빙) 시작 예정**
 
 ## 1. 지금 어디까지 왔나
 
@@ -24,22 +24,33 @@
 - 완료: [P3-5] 채팅 화면(`/conversations/[id]`) — 스트리밍 표시·"생각하는 중"·오류 표시, 대시보드 "새 프로젝트" 연결
 - 완료: [P3-6] 승인 게이트 UI — gate 이벤트 → 승인/수정 버튼, 승인 시에만 다음 블록
 - 완료: [P3-7] 슬라이스 2 검증 — 실제 Claude API로 브라우저에서 헌장→명세→명확화→계획까지 진행 확인, E2E 3종 추가. **슬라이스 2(SDVC 엔진) 완전 종료**
-- **다음: 슬라이스 3(Phase 4, 산출물 생성·저장) — [P4-1] Storage 버킷·권한 정책부터**
-  - tasks.md 기준 [P4-1] 버킷·정책(설정, **Supabase 대시보드 사용자 작업 필요**) → [P4-2] projects 표 → [P4-3] 파일 생성·업로드 → [P4-4] `/site/[slug]` 서빙 → [P4-5] 공개범위 → [P4-6] 슬라이스 검증
-  - 착수 시 먼저 정할 것: 산출물 파일을 Claude가 어떤 형식으로 내놓게 할지(파일별 JSON vs 마커 구분), `/conversations/[id]` 경로를 `/projects/[id]/chat`으로 옮길지(plan.md 원안)
+- 완료: [P4-1] Storage 비공개 버킷 `artifacts` 생성(스크립트로 재현 가능) · [P4-2] `projects` 표(주소 slug·공개범위·상태)
+- 완료: [P4-3] 파일 생성·저장·삭제 로직 (TDD 4사이클) · [P4-4] 생성 진행 표시와 대시보드 프로젝트 목록
+- 완료: [P4-5] 슬라이스 3 검증 — **실제 Claude가 만든 index.html·style.css가 Storage에 저장되는 것 확인**. **슬라이스 3 완전 종료**
+- **다음: 슬라이스 4(Phase 5, 산출물 URL 서빙) — `/site/{slug}` 라우트. 지금은 링크가 404다**
+  - tasks.md 슬라이스 4: [P5-1] `/site/[slug]` 라우트 → [P5-2] 공개범위 판단(FR-007) → [P5-3] 공개범위 변경 UI → [P5-4] 슬라이스 검증
+  - 착수 시 먼저 정할 것: `/conversations/[id]` 경로를 plan.md 원안대로 `/projects/[id]/chat`으로 옮길지
 
-## 2. 방금 세션에서 한 일 (2026-09-10 밤, 슬라이스 2 세션)
+## 2. 방금 세션에서 한 일 (2026-09-11, 슬라이스 3 세션)
 
-- 슬라이스 2(Phase 3, SDVC 엔진) **[P3-1]~[P3-7] 전부 완료**. 아래 §4에 작업별 상세.
-- TDD 사이클 8회(RED→GREEN(→REFACTOR)), sdvc-app 커밋 12개. 마지막 커밋 `4c6e487`, 프로덕션 재배포까지 확인.
-- 사용자 작업 1건 요청·완료: Supabase SQL Editor에서 `0003_conversations.sql` 실행.
-- **설계 결정 3가지**
-  1. 서버가 화면으로 보내는 것은 SSE가 아니라 **NDJSON 이벤트**(`text`/`thinking`/`gate`/`block`/`done`/`error`). 텍스트가 아닌 사건(승인 게이트 등)을 같은 통로로 늘리기 위해서.
-  2. **진행 단계는 서버(DB)가 들고 있다.** 클라이언트가 `block`을 보내도 무시한다 — 단계 건너뛰기 방지.
-  3. **단계 이동은 확인 버튼(=`approved:true`)으로만** 일어난다. 게이트 블록은 `advanceBlock`에서 fail-closed.
-- 발견·수정한 결함 3건(전부 실제 실행으로만 드러난 것): ①모델의 확장 사고 중 화면이 멈춘 것처럼 보임 ②jsdom에 `scrollIntoView`가 없어 스트리밍 중단 ③**비게이트 블록에서 다음 단계로 갈 방법이 아예 없었음**(가장 큰 것, [P3-7]에서 발견).
+- 슬라이스 3(Phase 4, 산출물 생성·저장) **[P4-1]~[P4-5] 전부 완료**. 작업별 상세는 §4.
+- 사용자 지시로 **작업 ID 하나([P#-#])를 마칠 때마다 보고하고 확인받는 방식**으로 진행함.
+- 사용자 작업 1건: Supabase SQL Editor에서 `0004_projects.sql` 실행.
+- **설계 결정 4가지**
+  1. Storage 버킷은 **비공개**. 공개 버킷이면 URL을 아는 누구나 항상 볼 수 있어 공개범위(FR-007)와 해지 시 즉시 비공개(FR-023)가 무력화된다. 서버가 권한을 확인하고 대신 내보낸다.
+  2. 파일은 ```` ```file:경로 ```` 표시가 붙은 코드블록만 저장한다. 설명용 코드블록과 구분하기 위해서.
+  3. **모델이 만든 경로는 믿지 않는다** — `../`·절대경로·백슬래시·허용 외 확장자는 버린다.
+  4. 삭제는 **파일 먼저, 기록 나중**. 반대면 주인 없는 파일이 저장소에 영영 남는다.
+- 발견·수정한 결함 4건: ①대화 저장소가 `title`·`project_id`를 안 읽어와 매번 새 프로젝트가 생길 뻔함 ②발행 결과의 상태가 실제와 달랐음 ③**구현 단계에서 max_tokens(8192)에 걸려 파일이 미완성으로 잘렸고 아무 안내가 없었음** ④잘린 응답을 사용자가 알 방법이 없었음
 
 ## 3. 검증 증거 (실제 실행한 명령과 결과)
+
+- [P4-5] 최종: `npm run test` → **Tests 152 passed (21 files)**, `npx playwright test` → **10 passed**(슬라이스1 4 + 슬라이스2 3 + 슬라이스3 3), lint 무경고, build 통과.
+- [P4-1] 버킷 권한 실검증: 서버키 업로드·다운로드 OK / Supabase 공개 URL 404 / 브라우저키 다운로드·업로드 모두 차단(RLS).
+- [P4-2] `projects` 제약 실검증: 주소 중복 거부, 잘못된 주소 6종(`AB`·`Has Space`·`대문자Slug`·2자·앞뒤 하이픈) 전부 거부, 없는 공개범위 값 거부, 외래키 작동, **프로젝트 삭제해도 대화는 남음**(project_id=null), 브라우저키 읽기·쓰기 차단.
+- [P4-3] 통합 검증(임시 계정): 파일 2개 저장(하위 폴더 포함), 설명용 코드블록·`../` 경로는 저장 안 됨, 한글 이름 → `site-xxxxxx` 주소, 다시 만들기 시 같은 프로젝트에 덮어쓰기, 삭제 후 파일 0개.
+- **[P4-5] 실제 Claude로 홈페이지 생성 성공**(로컬 프로덕션 빌드 + 실제 API): 구현 단계에서 "만들어주세요" → 화면에 "홈페이지 파일을 만드는 중…" → **"홈페이지가 만들어졌습니다 (파일 2개)" + 주소 `/site/site-jdterm`**. Storage 확인: `index.html`(1540B, text/html), `style.css`(1063B, text/css), 내용은 `<!doctype html>`로 시작하는 실제 한국어 홈페이지이고 style.css를 정상 연결. DB: `status=deployed`, 대화-프로젝트 연결 OK.
+  대시보드에서 목록 확인 → 삭제(2단계 확인) → **프로젝트 행 0건, Storage 파일 0개, 대화는 보존**.
 
 - [P3-1~P3-3] `npm run test` → **Test Files 11 passed / Tests 61 passed**, `npm run lint` 무오류, `npm run build` ✓ Compiled successfully (라우트 8개, `/api/chat` 포함)
 - [P3-3] **실제 Claude API로 이식된 대본 검증** (`claude-sonnet-5`, block=plan, max_tokens 4000): 응답에 화면 구성·폴더 구조·**헌장 점검 표**·승인 선택지 3종("예, 이대로 진행(권장)"/"일부 수정"/"다시 설명")이 대본 지시대로 나왔고, 마지막 줄에 `<<SDVC_GATE:plan>>` 마커가 정확히 출력됨. block=constitution_specify로는 헌장 4종 추천 + 쉬운 말 비유가 나오는 것 확인.
@@ -123,9 +134,17 @@
   `e2e/chat.spec.ts` 3종 추가: 스트리밍 표시·마커 감추기·승인 게이트 전환 / 저장된 대화 복원 / 남의 대화 404.
   **주의**: Anthropic 호출은 **서버**가 하므로 Playwright의 `page.route('https://api.anthropic.com/...')`로는 못 막는다(처음에 이렇게 짰다가 실패). `/api/chat` 응답 자체를 대신 돌려주는 방식으로 작성했다.
 
+### 슬라이스 3(Phase 4, 산출물 생성·저장) — 완료
+
+- [x] **[P4-1] 완료** — Supabase Storage 비공개 버킷 `artifacts`(파일당 5MB). 대시보드 수작업 대신 `scripts/setup-storage.mjs`로 남겨 재현 가능. 커밋 `e941c2a`.
+- [x] **[P4-2] 완료** — `supabase/migrations/0004_projects.sql`(사용자가 실행). 주소 slug는 소문자·숫자·하이픈 3~40자 + 전체 고유. `conversations.project_id` 외래키 연결(프로젝트 삭제해도 대화는 보존). 커밋 `530f9e9`·`facdcdb`.
+- [x] **[P4-3] 완료** — TDD 4사이클. `lib/projects/slug.ts`(한글 이름 → `site-xxxxxx`), `lib/artifacts/parse.ts`(```` ```file:경로 ```` 블록만, 위험 경로·확장자 차단, 개수·크기 상한), `lib/artifacts/storage.ts`(업로드·재귀 삭제), `lib/projects/store.ts`, `lib/artifacts/publish.ts`(발행 오케스트레이션), `DELETE /api/projects/[id]`(FR-022). 커밋 `df849e4`~`e71cb17`.
+- [x] **[P4-4] 완료** — 채팅 화면의 "만드는 중" 표시와 완성 안내(주소·열어보기), 대시보드 프로젝트 목록(상태·공개범위·2단계 확인 삭제). 커밋 `0cfc7ba`·`e0d0c18`.
+- [x] **[P4-5] 완료** — 실브라우저 검증(위 §3) + `e2e/artifacts.spec.ts` 3종. 검증 중 발견한 결함 수정: 구현 단계 max_tokens를 32000으로, `truncated` 이벤트와 "이어서 계속" 버튼 추가. 커밋 `daf41f1`·`ddfd8cf`.
+
 ## 5. 막힌 것 / 사용자 결정 대기
 
-- 없음. 다음 세션은 바로 슬라이스 3(Phase 4, 산출물 생성·저장) 착수 가능.
+- 없음. 다음은 슬라이스 4(Phase 5) [P5-x] `/site/{slug}` 서빙.
 - 참고: 사용자 계정(`parkbctop@hotmail.com`)으로 만든 시험용 대화 1건이 DB에 남아 있다(지워도 무방).
 
 ## 6. 알아둘 함정
@@ -139,6 +158,9 @@
 - **모델은 확장 사고(thinking)를 스스로 켠다.** 사고 중에는 텍스트가 안 나오므로 `max_tokens`가 작으면 응답이 통째로 비어 보인다. `/api/chat`은 기본 8192 토큰이고 사고 중에는 `{"type":"thinking"}` 이벤트를 보낸다 — [P3-5] 채팅 화면에서 이 이벤트로 "생각하는 중" 표시를 해야 한다.
 - **dev 서버가 유령으로 남는다**: 이전 세션의 Playwright가 띄운 dev 서버가 포트 3000을 계속 물고 있다가 워커가 죽어 500을 뱉었다(원인 찾는 데 시간 씀). `Get-NetTCPConnection -LocalPort 3000`으로 확인하고 필요하면 종료 후 새로 띄울 것.
 - **`.claude/launch.json`의 preview_start는 이 PC에서 실패한다**(`'C:\Program' ...` 오류 — npm 경로 공백 문제). dev 서버는 Bash 백그라운드로 `npm run dev` 하는 편이 확실하다.
+- **`localhost`와 `127.0.0.1`이 다르게 잡힌다**(IPv6/IPv4). 브라우저 도구로 로컬 서버를 열 때 `localhost:3000`이 실패하면 `127.0.0.1:3000`으로 시도할 것 — [P4-5]에서 서버가 죽은 줄 알고 헤맸다.
+- **로컬 검증은 `npm run dev`보다 `npm run build && npm start`가 낫다.** dev 서버의 HMR이 스트리밍 요청(`/api/chat`)을 계속 끊어(ERR_ABORTED) 검증이 불가능했다.
+- **구현 단계 응답은 길다**: max_tokens 8192로는 파일 하나도 다 못 쓴다(→32000으로). 파일 블록이 닫히지 않으면 **저장하지 않는 것이 정상 동작**이다(반쯤 쓴 파일을 저장하지 않으려고) — 대신 `truncated` 이벤트로 사용자에게 알린다.
 - **vitest 워커 타임아웃**은 이 PC에서 가끔 나는 인프라 문제다(테스트 실패 아님). 같은 명령을 한 번 더 실행하면 정상 통과한다 — RED로 오인하지 말 것.
 - `sdvc-app` 저장소에는 git 사용자 정보가 설정돼 있지 않아 커밋이 거부될 수 있다. `git config user.name pinusian` / `user.email pinusian@gmail.com`(기존 커밋과 동일)으로 저장소에 로컬 설정해 두었다.
 - Vercel 최신 UI: **Environment Variables**와 **Domains**는 각각 `.../settings/environment-variables`, `.../settings/domains` — 사이드바 목록에 이름 그대로 안 보일 수 있으니 URL 직접 수정이 빠르다. `NEXT_PUBLIC_*` 변수는 타입을 **Config**로(Secret은 나중에 되돌릴 수 없음), 나머지는 **Secret**으로.
