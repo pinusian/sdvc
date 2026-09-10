@@ -1,6 +1,6 @@
 # 진행 상황
 
-> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P2-8] 완료 → **[P2-9] 슬라이스 1 최종 검증 예정**
+> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P2-9] 로컬 검증 완료, **Vercel 프로덕션 환경변수 등록 대기 중** → 완료되면 슬라이스 2(Phase 3)로
 
 ## 1. 지금 어디까지 왔나
 
@@ -16,7 +16,8 @@
 - 완료: [P2-6] 권한 검사 공통 모듈 `can()` (WBS 2.4절 매트릭스 그대로 구현)
 - 완료: [P2-7] 관리자 자동승격(FR-024) + 2FA 검사 primitive + **보안 취약점 발견·수정**(자기수정 RLS 허점)
 - 완료: [P2-8] 회원가입·로그인·대시보드 실제 화면 + UI 표준 확정(ALCP webapp-reading 디자인 톤 이식)
-- **다음: [P2-9] 슬라이스 1 최종 검증 (Playwright E2E 정식화)**
+- 완료: [P2-9] Playwright E2E 4종 작성·통과 (로컬)
+- **다음: Vercel 프로덕션 환경변수 등록 확인 → 확인되면 슬라이스 2(Phase 3, SDVC 엔진)로**
 
 ## 2. 방금 세션에서 한 일 (2026-09-10, 이 세션)
 
@@ -79,14 +80,15 @@
   **UI 표준 확정**: '독서활동'(reading-activity-example)은 서브에이전트 6종뿐 실제 UI 없음 → ALCP 프로젝트(`C:\Users\USER\AI_Code_Study\webapp-reading`)의 실제 디자인("따뜻한 종이질감+세리프 타이틀+세이지그린")을 SDVC 기본 UI 표준으로 채택(사용자 확정). Tailwind v4 `@theme`로 색상·폰트(Fraunces+Noto Sans KR)·둥글기·그림자 토큰화(`globals.css`, `layout.tsx`).
   **실제 브라우저 E2E 수동 검증 완료**(로컬 dev서버 + Gmail `+`별칭 실계정, 종료 후 관리자API로 정리): ①/signup 디자인 확인(스크린샷) ②잘못된 이메일(example.com) 제출→Supabase 오류 실시간 표시 ③유효 이메일 가입→/verify-email 리다이렉트 ④미인증 상태 로그인 시도→"Email not confirmed" 차단(FR-021 실증) ⑤관리자API로 인증처리→재로그인→대시보드 진입(이메일·등급 정상 표시, 스크린샷) ⑥로그아웃→/login 복귀. Playwright 자동화는 [P2-9]에서 정식화.
   커밋: `90184e4`(sdvc-app)
-- [ ] **[P2-9] 슬라이스 1 최종 검증부터 시작** — Playwright E2E 작성, 브라우저 실행 증거 수집(승인 게이트 없음, 검증만)
-- [ ] Vercel 프로덕션 환경변수 5종 등록 — [P2-9] 전까지는 반드시 처리 (위 §5 참조)
-- [ ] [P2-9] 끝나면 슬라이스 2(Phase 3, SDVC 엔진)로
+- [x] **[P2-9] 로컬 검증 완료** — `e2e/auth.spec.ts` 4개 작성·전부 통과: 이메일형식 서버측검증(Supabase 미호출), 미인증계정 로그인차단(FR-021), 인증된 개발자 로그인→대시보드→로그아웃, 미로그인시 대시보드 접근차단.
+  **트러블슈팅**: 처음엔 실제 `auth.signUp()`으로 매 테스트 가입 → Supabase 무료플랜 이메일 발송 한도("email rate limit exceeded")에 걸려 실패 → `admin.createUser()`(확인메일 미발송)로 계정을 미리 만들어두는 방식으로 재설계해 해결. 이메일 형식 테스트도 브라우저 기본 `type="email"` 검증이 우리 서버검증 전에 막던 문제 발견 → 점(.) 없는 이메일로 교체해 해결.
+  커밋: `c6962e9`(sdvc-app)
+- [ ] **Vercel 프로덕션 환경변수 5종 등록** — 사용자에게 대시보드 등록 안내함, 아직 미완료 확인됨(`curl .../api/health` → 전부 false). **등록·재배포 후 다시 확인할 것.**
+- [ ] 프로덕션 환경변수 확인되면 슬라이스 2(Phase 3, SDVC 엔진)로
 
 ## 5. 막힌 것 / 사용자 결정 대기
 
-- ~~[P0-2] Vercel 가입 미완료~~ → 완료(위 참조)
-- **Vercel 프로덕션 환경변수 미등록** — `.env.example`의 5개 항목을 Vercel 프로젝트 Settings → Environment Variables에 등록해야 배포판에서도 동작함. [P2-9] 전까지 처리.
+- **Vercel 프로덕션 환경변수 미등록** — `https://sdvc-app-b5vk.vercel.app/api/health` 실제 curl 확인 결과 전부 `false`. `.env.example`의 5개 항목을 Vercel 프로젝트 Settings → Environment Variables에 등록 + Redeploy 필요. 다음 세션 시작 시 가장 먼저 확인할 것.
 
 ## 6. 알아둘 함정
 
