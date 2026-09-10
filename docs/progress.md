@@ -1,6 +1,6 @@
 # 진행 상황
 
-> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P2-6] 완료 → **[P2-7] 서버관리자 계정·2FA 예정**
+> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P2-7] 완료 → **[P2-8] 로그인 화면·대시보드 예정**
 
 ## 1. 지금 어디까지 왔나
 
@@ -14,7 +14,8 @@
 - 완료: [P2-4] `profiles` 테이블(역할·등급·구독상태) 생성 및 검증
 - 완료: [P2-5] 회원가입·로그인 핵심 로직 (TDD 2사이클 완료)
 - 완료: [P2-6] 권한 검사 공통 모듈 `can()` (WBS 2.4절 매트릭스 그대로 구현)
-- **다음: [P2-7] 서버관리자 계정·2FA — 슬라이스 1의 나머지 [P2-7]~[P2-9]**
+- 완료: [P2-7] 관리자 자동승격(FR-024) + 2FA 검사 primitive + **보안 취약점 발견·수정**(자기수정 RLS 허점)
+- **다음: [P2-8] 로그인 화면·대시보드 — 슬라이스 1의 마지막 [P2-8]~[P2-9]**
 
 ## 2. 방금 세션에서 한 일 (2026-09-10, 이 세션)
 
@@ -70,8 +71,11 @@
   화면(UI)은 아직 없음 — [P2-8]에서 만듦.
 - [x] **[P2-6] 완료** — `src/lib/permissions/check.ts`의 `can(actor, action, subject)`. 관리자=전권, 개발자=project:create 가능+소유권행위(read/update/delete/visibility)는 자기 것만, 관리자전용 행위 항상 거부, subject 누락 시 안전하게 거부(fail-closed).
   이후 모든 API 라우트(Phase 4~8)는 처리 전에 이 함수로 검사해야 함 — 잊지 말 것.
-- [ ] **[P2-7] 서버관리자 계정·2FA부터 시작** — RED→GREEN→REFACTOR. FR-024(ADMIN_EMAIL 환경변수로 자동 role='admin' 부여) 여기서 구현
-- [ ] 이어서 [P2-8]~[P2-9] tasks.md 순서대로 진행
+- [x] **[P2-7] 완료** — `src/lib/auth/admin.ts`: `ensureAdminRole`(FR-024, ADMIN_EMAIL 일치 시 admin 승격) + `hasVerifiedMfa`(세션 aal2 검사 primitive, MFA 등록 UI는 P8-1로 미룸).
+  **보안 취약점 발견·수정**: [P2-4]에서 만든 `profiles_update_own` RLS 정책이 컬럼 제한 없어 개발자가 자기 role을 admin으로 직접 바꿀 수 있는 허점 발견 → `0002_profiles_lockdown.sql`로 정책 제거, 이후 profiles 쓰기는 전부 secret key 서버 코드로만.
+  실제 Supabase 종단간 검증(임시 유저 생성→테스트→정리, 커밋 `9298cd2`): 자기수정 시도 0행 변경 확인, ensureAdminRole 실제 DB role 변경 확인(일반이메일→developer 유지, ADMIN_EMAIL일치→admin 변경).
+- [ ] **[P2-8] 로그인 화면·대시보드부터 시작** — 화면 구현 + Playwright E2E. 지금까지 만든 로직(signup/login/permissions/admin)을 실제 화면에 연결
+- [ ] 이어서 [P2-9] 슬라이스 1 최종 검증
 - [ ] Vercel 프로덕션 환경변수 5종 등록 — [P2-9] 전까지는 반드시 처리 (위 §5 참조)
 - [ ] 슬라이스 1(Phase 2) 끝나면 [P2-9]에서 브라우저 실행 증거 남기고 슬라이스 2(Phase 3, SDVC 엔진)로
 
