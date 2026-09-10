@@ -1,6 +1,6 @@
 # 진행 상황
 
-> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P2-9] 로컬 검증 완료, **Vercel 프로덕션 환경변수 등록 대기 중** → 완료되면 슬라이스 2(Phase 3)로
+> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: **[P2-9] 완료 — 슬라이스 1(로그인·인증) 전체 종료** → **슬라이스 2(Phase 3, SDVC 엔진) 시작 예정**
 
 ## 1. 지금 어디까지 왔나
 
@@ -56,8 +56,7 @@
 - [x] **[P2-1] 완료** — `SDVC-app/` (GitHub `pinusian/sdvc-app`)에 Next.js **16**(App Router)+TypeScript+Tailwind 뼈대 생성. Vitest+Playwright 테스트 도구 설정, 스모크테스트 통과. `npm run test`/`lint`/`build` 전부 실행 확인함(아래 §3 증거).
   **주의**: plan.md엔 "Next.js 14"라 적었으나 실제 설치판은 **16.3.4**(React 19.2.8) — AGENTS.md 경고에 따라 실제 문서(`node_modules/next/dist/docs`) 확인 후 진행함. params/searchParams가 Promise, PageProps/LayoutProps 전역 헬퍼 타입 사용 등 컨벤션 차이 있음 — 다음 작업(P2-5 이후) 코드 작성 시 계속 유의할 것.
 - [x] **[P0-2]+[P2-2] 완료** — Vercel 가입(이메일 `parkbctop@hotmail.com`) 성공, GitHub(`pinusian`) 연결, `sdvc-app` 첫 배포 성공.
-  프로덕션 도메인: **https://sdvc-app-b5vk.vercel.app**
-  (개별 배포 URL: `sdvc-app-b5vk-62pxbymea-sdvc.vercel.app` — 매 배포마다 바뀌므로 위 도메인 기준으로 접속할 것)
+  **프로덕션 도메인(정정): https://sdvc-app.vercel.app** — `sdvc-app-b5vk.vercel.app`은 오배포 화면에 표시된 보조 도메인이고 실제 기본 도메인이 아니었음. 이 착오로 [P2-9] 이후 한동안 잘못된 URL로 프로덕션을 확인해 혼선을 빚음 — **앞으로는 반드시 `sdvc-app.vercel.app` 기준으로 확인할 것.**
   문제 해결 이력: 최초 배포가 "Installing dependencies..."에서 실패 → npm peer-dependency 충돌(로컬에서 이미 겪었던 것과 동일) → `.npmrc`(legacy-peer-deps=true) 추가로 해결, 재배포 성공(sdvc-app 커밋 `4db547f`)
 - [x] **[P0-1]+[P0-3]+[P2-3] 완료** — Anthropic 키·Supabase 프로젝트 준비 확인됨. `lib/supabase/{client,server}.ts` 작성(Next.js 16 cookies() Promise 반영), `.env.example`을 Supabase 신규 키 명칭(publishable/secret key)으로 갱신, `/api/health` 라우트로 연결 확인.
   로컬 `.env.local`로 종단간 검증: publishable key→`/auth/v1/health` 200 / secret key→`/rest/v1/` 200.
@@ -83,12 +82,13 @@
 - [x] **[P2-9] 로컬 검증 완료** — `e2e/auth.spec.ts` 4개 작성·전부 통과: 이메일형식 서버측검증(Supabase 미호출), 미인증계정 로그인차단(FR-021), 인증된 개발자 로그인→대시보드→로그아웃, 미로그인시 대시보드 접근차단.
   **트러블슈팅**: 처음엔 실제 `auth.signUp()`으로 매 테스트 가입 → Supabase 무료플랜 이메일 발송 한도("email rate limit exceeded")에 걸려 실패 → `admin.createUser()`(확인메일 미발송)로 계정을 미리 만들어두는 방식으로 재설계해 해결. 이메일 형식 테스트도 브라우저 기본 `type="email"` 검증이 우리 서버검증 전에 막던 문제 발견 → 점(.) 없는 이메일로 교체해 해결.
   커밋: `c6962e9`(sdvc-app)
-- [ ] **Vercel 프로덕션 환경변수 5종 등록** — 사용자에게 대시보드 등록 안내함, 아직 미완료 확인됨(`curl .../api/health` → 전부 false). **등록·재배포 후 다시 확인할 것.**
-- [ ] 프로덕션 환경변수 확인되면 슬라이스 2(Phase 3, SDVC 엔진)로
+- [x] **Vercel 프로덕션 환경변수 5종 등록 완료 및 검증** — `https://sdvc-app.vercel.app/api/health` → `{supabaseUrlConfigured:true, supabaseKeyConfigured:true, supabaseReachable:true, anthropicKeyConfigured:true}`. 루트 `/`도 500→307(정상 리다이렉트)로 회복.
+  **트러블슈팅 과정**(참고용): ①환경변수 저장 직후엔 재배포가 자동으로 일어나지 않는다는 걸 몰라 혼선 ②`NEXT_PUBLIC_*` 변수를 처음에 "Secret" 타입으로 저장했다가 "Config"로 전환 불가 → 삭제 후 Config로 재생성 ③재배포 후에도 계속 false로 나와 원인 조사 → **`sdvc-app-b5vk.vercel.app`이 실제 프로덕션 기본 도메인이 아니었음**(진짜는 `sdvc-app.vercel.app`)이 근본 원인으로 밝혀짐. Vercel 최신 UI(Environment Variables가 별도 사이드바 메뉴로 분리, Domains도 프로젝트 세팅 하위)라 경로 찾기에 시간이 걸림.
+  **슬라이스 1(로그인·인증) 완전 종료** — 로컬(P2-1~P2-9)과 프로덕션 모두 검증 완료.
 
 ## 5. 막힌 것 / 사용자 결정 대기
 
-- **Vercel 프로덕션 환경변수 미등록** — `https://sdvc-app-b5vk.vercel.app/api/health` 실제 curl 확인 결과 전부 `false`. `.env.example`의 5개 항목을 Vercel 프로젝트 Settings → Environment Variables에 등록 + Redeploy 필요. 다음 세션 시작 시 가장 먼저 확인할 것.
+- 없음. 다음 세션은 바로 슬라이스 2(Phase 3, SDVC 엔진) 착수 가능.
 
 ## 6. 알아둘 함정
 
@@ -97,3 +97,5 @@
 - WBS 문서(`10_SDVC_웹서비스/WBS_서버구축.md`, docx)는 Phase 단위 로드맵이고, `tasks.md`는 그중 MVP(Phase 2~5)만 슬라이스로 세분화한 것. Phase 6 이후로 갈 때는 그 Phase에 대해 다시 Block1(Specify 보완)~Block4(Tasks)를 간략히 반복해야 한다.
 - 트리거: `SDVC서버 구축`(시작/재개) · `작업 휴식`(저장 후 중단)
 - 이 PC에는 LibreOffice 없음 — WBS docx 육안검증 불가, python-docx 구조검증까지만.
+- **프로덕션 URL은 `https://sdvc-app.vercel.app`이다.** `sdvc-app-b5vk.vercel.app`이 아니다 — 첫 배포 완료 화면에 표시된 도메인을 잘못 믿어서 한동안 헷갈렸다(위 P0-2/P2-2 항목 참고). 앞으로 프로덕션 확인 시 이 URL을 쓸 것.
+- Vercel 최신 UI: **Environment Variables**와 **Domains**는 각각 `.../settings/environment-variables`, `.../settings/domains` — 사이드바 목록에 이름 그대로 안 보일 수 있으니 URL 직접 수정이 빠르다. `NEXT_PUBLIC_*` 변수는 타입을 **Config**로(Secret은 나중에 되돌릴 수 없음), 나머지는 **Secret**으로.
