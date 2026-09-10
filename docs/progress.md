@@ -1,6 +1,6 @@
 # 진행 상황
 
-> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P2-3] 완료, "작업 휴식"으로 세션 종료 → **[P2-4]부터 재개**
+> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P2-4] 완료 → **[P2-5] 회원가입·로그인 TDD 진행 예정**
 
 ## 1. 지금 어디까지 왔나
 
@@ -11,7 +11,8 @@
 - 완료: [P1-4] Tasks — `docs/tasks.md` (게이트 G4 승인) — MVP 4개 버티컬 슬라이스로 분해
 - 완료: [P1-5] Analyze — 누락 2건(FR-022 삭제기능 누락, FR-024 관리자메커니즘 불명확) 발견·수정
 - 완료: [블록5] Implement 슬라이스 1(Phase 2) 중 **[P2-1] Next.js 뼈대, [P2-2] Vercel 배포, [P2-3] Supabase 연결** — 아래 §4 참조
-- **다음: [P2-4] 역할·등급·권한 DB 설계부터 이어서 (슬라이스 1의 나머지 [P2-4]~[P2-9])**
+- 완료: [P2-4] `profiles` 테이블(역할·등급·구독상태) 생성 및 검증
+- **다음: [P2-5] 개발자 회원가입·로그인 (TDD) — 슬라이스 1의 나머지 [P2-5]~[P2-9]**
 
 ## 2. 방금 세션에서 한 일 (2026-09-10, 이 세션)
 
@@ -57,8 +58,13 @@
   로컬 `.env.local`로 종단간 검증: publishable key→`/auth/v1/health` 200 / secret key→`/rest/v1/` 200.
   진행 중 오류 2건 발견·수정: URL에 대시보드 링크를 넣었던 것(→API URL로 정정), `.supabase.com` 오타(→`.co`로 정정). 헬스체크 라우트 자체도 잘못된 엔드포인트(secret key 필요한 곳을 publishable key로 호출) 쓰고 있던 걸 수정(`bd5f6b4`).
   **⚠️ Vercel 프로덕션 환경변수는 아직 미등록** — 로컬만 확인됨. [P2-9] 슬라이스 검증 전까지 Vercel 대시보드에도 등록 필요.
-- [ ] **[P2-4] 역할·등급·권한 DB 설계부터 시작** — `profiles` 등 표를 Supabase에 실제로 생성 (tasks.md 기준 "— (스키마)", TDD 대상 아님)
-- [ ] 이어서 [P2-5]~[P2-9] tasks.md 순서대로 TDD 진행 (RED→GREEN→REFACTOR, 매 단계 `[P2-#]` 태그로 커밋)
+- [x] **[P2-4] 완료** — `supabase/migrations/0001_profiles.sql` 작성, 사용자가 Supabase SQL Editor에서 직접 실행.
+  검증(secret key로 REST 조회): status=200, 컬럼 9개(id/email/role/grade/trial_ends_at/stripe_customer_id/subscription_status/created_at/updated_at) 확인.
+  RLS 검증: publishable key(비로그인)로 조회 시 0행 반환 → 본인 행만 보이는 정책이 실제로 작동함 확인.
+  설계 결정: ADMIN_EMAIL 기반 관리자 승격은 DB 트리거가 아니라 [P2-7] 애플리케이션 코드에서 처리(트리거에 env var 넘기는 것보다 단순).
+  커밋: `23cd87c`(sdvc-app)
+- [ ] **[P2-5] 개발자 회원가입·로그인 (TDD)부터 시작** — RED(실패 테스트)→GREEN→REFACTOR
+- [ ] 이어서 [P2-6]~[P2-9] tasks.md 순서대로 TDD 진행 (RED→GREEN→REFACTOR, 매 단계 `[P2-#]` 태그로 커밋)
 - [ ] Vercel 프로덕션 환경변수 5종 등록 — [P2-9] 전까지는 반드시 처리 (위 §5 참조)
 - [ ] 슬라이스 1(Phase 2) 끝나면 [P2-9]에서 브라우저 실행 증거 남기고 슬라이스 2(Phase 3, SDVC 엔진)로
 
