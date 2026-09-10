@@ -1,6 +1,6 @@
 # 진행 상황
 
-> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P2-7] 완료 → **[P2-8] 로그인 화면·대시보드 예정**
+> 마지막 업데이트: 2026-09-10 · 프로젝트: SDVC 웹서비스 · 현재 단계: [P2-8] 완료 → **[P2-9] 슬라이스 1 최종 검증 예정**
 
 ## 1. 지금 어디까지 왔나
 
@@ -15,7 +15,8 @@
 - 완료: [P2-5] 회원가입·로그인 핵심 로직 (TDD 2사이클 완료)
 - 완료: [P2-6] 권한 검사 공통 모듈 `can()` (WBS 2.4절 매트릭스 그대로 구현)
 - 완료: [P2-7] 관리자 자동승격(FR-024) + 2FA 검사 primitive + **보안 취약점 발견·수정**(자기수정 RLS 허점)
-- **다음: [P2-8] 로그인 화면·대시보드 — 슬라이스 1의 마지막 [P2-8]~[P2-9]**
+- 완료: [P2-8] 회원가입·로그인·대시보드 실제 화면 + UI 표준 확정(ALCP webapp-reading 디자인 톤 이식)
+- **다음: [P2-9] 슬라이스 1 최종 검증 (Playwright E2E 정식화)**
 
 ## 2. 방금 세션에서 한 일 (2026-09-10, 이 세션)
 
@@ -74,10 +75,13 @@
 - [x] **[P2-7] 완료** — `src/lib/auth/admin.ts`: `ensureAdminRole`(FR-024, ADMIN_EMAIL 일치 시 admin 승격) + `hasVerifiedMfa`(세션 aal2 검사 primitive, MFA 등록 UI는 P8-1로 미룸).
   **보안 취약점 발견·수정**: [P2-4]에서 만든 `profiles_update_own` RLS 정책이 컬럼 제한 없어 개발자가 자기 role을 admin으로 직접 바꿀 수 있는 허점 발견 → `0002_profiles_lockdown.sql`로 정책 제거, 이후 profiles 쓰기는 전부 secret key 서버 코드로만.
   실제 Supabase 종단간 검증(임시 유저 생성→테스트→정리, 커밋 `9298cd2`): 자기수정 시도 0행 변경 확인, ensureAdminRole 실제 DB role 변경 확인(일반이메일→developer 유지, ADMIN_EMAIL일치→admin 변경).
-- [ ] **[P2-8] 로그인 화면·대시보드부터 시작** — 화면 구현 + Playwright E2E. 지금까지 만든 로직(signup/login/permissions/admin)을 실제 화면에 연결
-- [ ] 이어서 [P2-9] 슬라이스 1 최종 검증
+- [x] **[P2-8] 완료** — signup/login/verify-email/dashboard 화면, Server Actions(signupAction/loginAction/logoutAction)로 [P2-5]~[P2-7] 로직 연결. 재사용 컴포넌트 Button/Card/Field.
+  **UI 표준 확정**: '독서활동'(reading-activity-example)은 서브에이전트 6종뿐 실제 UI 없음 → ALCP 프로젝트(`C:\Users\USER\AI_Code_Study\webapp-reading`)의 실제 디자인("따뜻한 종이질감+세리프 타이틀+세이지그린")을 SDVC 기본 UI 표준으로 채택(사용자 확정). Tailwind v4 `@theme`로 색상·폰트(Fraunces+Noto Sans KR)·둥글기·그림자 토큰화(`globals.css`, `layout.tsx`).
+  **실제 브라우저 E2E 수동 검증 완료**(로컬 dev서버 + Gmail `+`별칭 실계정, 종료 후 관리자API로 정리): ①/signup 디자인 확인(스크린샷) ②잘못된 이메일(example.com) 제출→Supabase 오류 실시간 표시 ③유효 이메일 가입→/verify-email 리다이렉트 ④미인증 상태 로그인 시도→"Email not confirmed" 차단(FR-021 실증) ⑤관리자API로 인증처리→재로그인→대시보드 진입(이메일·등급 정상 표시, 스크린샷) ⑥로그아웃→/login 복귀. Playwright 자동화는 [P2-9]에서 정식화.
+  커밋: `90184e4`(sdvc-app)
+- [ ] **[P2-9] 슬라이스 1 최종 검증부터 시작** — Playwright E2E 작성, 브라우저 실행 증거 수집(승인 게이트 없음, 검증만)
 - [ ] Vercel 프로덕션 환경변수 5종 등록 — [P2-9] 전까지는 반드시 처리 (위 §5 참조)
-- [ ] 슬라이스 1(Phase 2) 끝나면 [P2-9]에서 브라우저 실행 증거 남기고 슬라이스 2(Phase 3, SDVC 엔진)로
+- [ ] [P2-9] 끝나면 슬라이스 2(Phase 3, SDVC 엔진)로
 
 ## 5. 막힌 것 / 사용자 결정 대기
 
