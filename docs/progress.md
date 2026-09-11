@@ -245,6 +245,8 @@
 - **모델은 확장 사고(thinking)를 스스로 켠다.** 사고 중에는 텍스트가 안 나오므로 `max_tokens`가 작으면 응답이 통째로 비어 보인다. `/api/chat`은 기본 8192 토큰이고 사고 중에는 `{"type":"thinking"}` 이벤트를 보낸다 — [P3-5] 채팅 화면에서 이 이벤트로 "생각하는 중" 표시를 해야 한다.
 - **dev 서버가 유령으로 남는다**: 이전 세션의 Playwright가 띄운 dev 서버가 포트 3000을 계속 물고 있다가 워커가 죽어 500을 뱉었다(원인 찾는 데 시간 씀). `Get-NetTCPConnection -LocalPort 3000`으로 확인하고 필요하면 종료 후 새로 띄울 것.
 - **`.claude/launch.json`의 preview_start는 이 PC에서 실패한다**(`'C:\Program' ...` 오류 — npm 경로 공백 문제). dev 서버는 Bash 백그라운드로 `npm run dev` 하는 편이 확실하다.
+- **Vercel 환경변수 타입**: 비밀값은 반드시 **Secret**으로 저장한다. Config(평문)로 넣으면 프로젝트 접근 권한이 있는 사람이 눈 아이콘으로 값을 볼 수 있고, Vercel이 "Needs Attention" 경고를 띄운다. **Config→Secret 전환은 불가**하므로 삭제 후 재생성해야 한다. `NEXT_PUBLIC_*`만 Config가 맞다.
+  2026-09-12에 `SUPABASE_SECRET_KEY`가 Config로 저장돼 있던 것을 사용자가 발견 → Supabase에서 새 secret key 발급 → Vercel에 Secret으로 재등록 → 로컬·프로덕션 검증 후 옛 키 폐기. **교체 순서**: 새 키 발급 → 양쪽 교체 → 동작 확인 → **그 다음에** 옛 키 폐기(먼저 폐기하면 서비스가 끊긴다).
 - **Supabase 무료 플랜은 확인메일 발송 한도가 낮다.** 실제 가입 폼을 자동 테스트에 넣으면 2회차부터 막힌다 — 테스트 계정은 `admin.createUser(email_confirm:true)`로 만든다([P2-9]·[P5-5]에서 두 번 겪음).
 - **공개범위 변경은 화면이 먼저, 저장이 나중이다**([P5-3] 설계). 테스트에서 저장 응답(`waitForResponse`)을 기다리지 않으면 열람이 간헐적으로 404가 된다.
 - **산출물 서빙의 함정 3가지**(전부 [P5-1]에서 겪음): ①Supabase Storage는 html을 `text/plain`으로 돌려준다 ②우리 주소는 끝에 `/`가 없어 상대 경로가 깨진다(→`<base>` 주입) ③CSP `sandbox`를 걸면 그 문서의 요청에 쿠키가 안 실려 로그인 확인이 필요한 파일은 전부 404가 된다.
