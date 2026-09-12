@@ -438,6 +438,8 @@
 - **브라우저 도구(Playwright/Chromium)는 외부 네트워크가 막혀 있다**(`ERR_NETWORK_ACCESS_DENIED`). 프로덕션 화면 검증은 같은 커밋을 빌드한 로컬 서버로 하고, 배포 자체는 node `fetch`로 확인한다(fetch는 외부로 나간다).
 - **서버를 띄워 둔 채 `npm run build`를 돌리면 그 서버가 깨진다.** 돌아가던 `next start`의 `.next`가 바뀌어 브라우저에 "This page couldn't load"만 뜬다 — [P6-8] e2e 3건이 한꺼번에 실패해 코드를 의심했는데 원인은 이것이었다. 빌드 후에는 서버를 다시 띄울 것.
 - **날짜 "남은 일수"는 반올림한다.** DB 시계와 서버 시계가 몇 초만 어긋나도 올림/내림은 하루를 통째로 틀린다([P6-8]에서 7일 체험이 8일·6일로 번갈아 보였다).
+- **lint 경고를 고친 뒤에도 `npm run build`를 돌린다.** 시그니처를 바꾸면 테스트 호출부가 깨지는데 **vitest는 타입을 검사하지 않아** lint·test만으로는 통과한다. 2026-09-12에 이것으로 Vercel 빌드만 실패해 슬라이스 9가 통째로 배포되지 않았다(BL-006). 같은 함정을 §6에 적어두고도 또 걸렸다 — **순서: lint 수정 → test → build**.
+- **Vercel 프로젝트가 한 저장소에 여러 개 붙을 수 있다.** `sdvc-app` 외에 `sdvc-app-sx72`·`sdvc-app-b5vk`가 환경변수 없는 빈 사본으로 살아 있어 push마다 빌드 3번·실패 메일 3통이 갔다(2026-09-12 삭제, BL-007). [P0-2]의 "보조 도메인" 착각이 이것이었다. **프로덕션은 `sdvc-app` 하나뿐이다.**
 - **vitest 워커 타임아웃**은 이 PC에서 가끔 나는 인프라 문제다(테스트 실패 아님). 같은 명령을 한 번 더 실행하면 정상 통과한다 — RED로 오인하지 말 것.
 - `sdvc-app` 저장소에는 git 사용자 정보가 설정돼 있지 않아 커밋이 거부될 수 있다. `git config user.name pinusian` / `user.email pinusian@gmail.com`(기존 커밋과 동일)으로 저장소에 로컬 설정해 두었다.
 - Vercel 최신 UI: **Environment Variables**와 **Domains**는 각각 `.../settings/environment-variables`, `.../settings/domains` — 사이드바 목록에 이름 그대로 안 보일 수 있으니 URL 직접 수정이 빠르다. `NEXT_PUBLIC_*` 변수는 타입을 **Config**로(Secret은 나중에 되돌릴 수 없음), 나머지는 **Secret**으로.
