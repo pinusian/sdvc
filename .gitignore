@@ -37,5 +37,11 @@ desktop.ini
 ~$*.xlsx
 ~$*.pptx
 
+# --- 다운로드 편의용 사본 (정본은 docs/에 있음, 루트에만 적용) ---
+/20260913_SDVC웹서비스_매뉴얼_상세본.docx
+/20260913_SDVC웹서비스_매뉴얼_간략본.docx
+/20260913_SDVC웹서비스_소개자료.pptx
+/20260913_SDVC웹서비스_홍보원고.docx
+
 # --- claude local ---
 .claude/settings.local.json
